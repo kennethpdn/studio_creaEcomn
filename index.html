@@ -483,10 +483,9 @@
                 class="w-full h-full object-cover"
                 loop
                 playsinline
-                poster="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1200&auto=format&fit=crop"
+                muted
+                controls
               >
-                <!-- Vidéo d'exemple gratuite Google Cloud CDN -->
-                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4" />
                 Votre navigateur ne prend pas en charge la lecture vidéo.
               </video>
 
@@ -613,12 +612,37 @@
      */
 
     // --- VARIABLES D'ÉTAT & CONFIGURATION ---
+    function getOrCreateUserId() {
+      let uid = localStorage.getItem('studio_user_id');
+      if (!uid) {
+        uid = 'user_' + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem('studio_user_id', uid);
+      }
+      return uid;
+    }
+
+    const currentUserId = getOrCreateUserId();
     let currentBalance = 10.00;
-    const COST_PER_GENERATION = 1.12; // Déduction exacte demandée de 1.12$
-    
     let currentRenderType = 'video';     // 'video' | 'image' | 'animation'
     let currentAspectRatio = '16:9';     // '16:9' | '9:16' | '1:1'
     let currentModel = 'kling-3.0';      // ID du modèle sélectionné
+
+    // Synchronisation du solde réel depuis Firestore
+    async function syncUserBalance() {
+      try {
+        const res = await fetch(`/api/user?id=${encodeURIComponent(currentUserId)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (typeof data.balance === 'number') {
+            currentBalance = data.balance;
+            balanceDisplay.textContent = currentBalance.toFixed(2) + ' $';
+          }
+        }
+      } catch (e) {
+        console.warn('Mode hors-ligne ou synchronisation solde en attente:', e.message);
+      }
+    }
+    syncUserBalance();
 
     // Éléments du DOM - Contrôles
     const balanceDisplay = document.getElementById('balanceDisplay');
@@ -765,7 +789,9 @@
 
     // --- LOGIQUE PRINCIPALE DE GÉNÉRATION ---
 
-    function startGeneration() {
+    let currentPollingInterval = null;
+
+    async function startGeneration() {
       const promptValue = promptInput.value.trim();
 
       // 1. Validation du prompt
@@ -778,93 +804,125 @@
         return;
       }
 
-      // 2. Vérification du solde disponible
-      if (currentBalance < COST_PER_GENERATION) {
-        alert("Solde insuffisant ! Veuillez recharger vos crédits.");
+      // 2. Vérification du solde minimum
+      if (currentBalance < 0.20) {
+        alert("Solde insuffisant ! Votre solde est de " + currentBalance.toFixed(2) + " $.");
         return;
       }
 
-      // 3. Déduction du solde (-1.12 $)
-      currentBalance = parseFloat((currentBalance - COST_PER_GENERATION).toFixed(2));
-      balanceDisplay.textContent = currentBalance.toFixed(2) + ' $';
-
-      // 4. Passage à l'État 2 : CHARGEMENT
+      // 3. Passage à l'État de chargement
       setUiState('loading');
+      updateProgressDisplay(5, "Initialisation...", "Connexion aux serveurs GPU IA", "Requête");
 
-      /**
-       * =====================================================================
-       * NOTE D'INTÉGRATION VERCEL API :
-       * 
-       * Pour basculer vers votre véritable API Vercel, remplacez cette
-       * simulation de 4 secondes par votre requête Fetch asynchrone :
-       * 
-       * try {
-       *   const res = await fetch('/api/generate', {
-       *     method: 'POST',
-       *     headers: { 'Content-Type': 'application/json' },
-       *     body: JSON.stringify({
-       *       userId: 'user_active_id',
-       *       prompt: promptValue,
-       *       type: currentRenderType,
-       *       format: currentAspectRatio,
-       *       model: currentModel
-       *     })
-       *   });
-       *   const result = await res.json();
-       *   // Utiliser result.videoUrl pour alimenter le lecteur
-       *   showGenerationResult(promptValue, result.videoUrl || null);
-       * } catch (err) {
-       *   console.error("Erreur API:", err);
-       *   setUiState('empty');
-       * }
-       * =====================================================================
-       */
+      try {
+        // 4. Appel de l'endpoint serverless Vercel
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: currentUserId,
+            prompt: promptValue,
+            model: currentModel,
+            duration: 5,
+            aspectRatio: currentAspectRatio,
+          }),
+        });
 
-      // Simulation asynchrone sur 4 secondes avec progression dynamique et textes évolutifs
-      runAsyncSimulation(promptValue, 4000);
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || data.details || 'Erreur lors du déclenchement de la génération.');
+        }
+
+        // Mise à jour du solde retourné
+        if (typeof data.newBalance === 'number') {
+          currentBalance = data.newBalance;
+          balanceDisplay.textContent = currentBalance.toFixed(2) + ' $';
+        }
+
+        showToast(`Génération initiée (-${data.debitedCost || '0.55'} $)`);
+
+        // 5. Suivi en temps réel jusqu'à finalisation
+        await pollGenerationStatus(data.generationId, promptValue);
+
+      } catch (err) {
+        console.error("Erreur de génération:", err);
+        alert("Erreur : " + err.message);
+        setUiState('empty');
+        syncUserBalance();
+      }
     }
 
-    // Simulation asynchrone de 4 secondes avec changements de textes
-    function runAsyncSimulation(promptValue, totalDurationMs) {
-      const startTime = Date.now();
-      loaderProgressBar.style.width = '0%';
-      loadingPercentage.textContent = '0%';
+    function updateProgressDisplay(percent, title, subtitle, phase) {
+      loaderProgressBar.style.width = `${percent}%`;
+      loadingPercentage.textContent = `${percent}%`;
+      if (title) loadingStepTitle.textContent = title;
+      if (subtitle) loadingStepSubtitle.textContent = subtitle;
+      if (phase) loadingPhaseLabel.textContent = phase;
+    }
 
-      // Séquence d'étapes de génération
-      const stages = [
-        { progress: 15, title: "Vérification des crédits...", sub: "Authentification du compte et allocation GPU", phase: "Vérification" },
-        { progress: 40, title: "Création de la scène...", sub: "Interprétation sémantique et cadrage de vue", phase: "Élaboration" },
-        { progress: 75, title: "Synthèse des frames IA...", sub: "Calcul des vecteurs d'animation temporelle", phase: "Calcul tensoriel" },
-        { progress: 95, title: "Finalisation du rendu HD...", sub: "Encodage vidéo et application des filtres de netteté", phase: "Finalisation" }
-      ];
+    // Suivi de l'avancement via /api/status
+    function pollGenerationStatus(generationId, promptValue) {
+      if (currentPollingInterval) clearInterval(currentPollingInterval);
 
-      const intervalTimer = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        let progress = Math.min(100, Math.floor((elapsed / totalDurationMs) * 100));
+      let elapsedSeconds = 0;
+      updateProgressDisplay(15, "Traitement par l'IA...", "Calcul des tenseurs et cadrage de vue", "Génération");
 
-        loaderProgressBar.style.width = `${progress}%`;
-        loadingPercentage.textContent = `${progress}%`;
+      return new Promise((resolve) => {
+        currentPollingInterval = setInterval(async () => {
+          elapsedSeconds += 3;
 
-        // Recherche de la phase correspondante
-        const currentStage = stages.slice().reverse().find(s => progress >= s.progress);
-        if (currentStage) {
-          loadingStepTitle.textContent = currentStage.title;
-          loadingStepSubtitle.textContent = currentStage.sub;
-          loadingPhaseLabel.textContent = currentStage.phase;
-        }
+          // Progression visuelle progressive
+          let simulatedProgress = Math.min(94, 15 + Math.floor(elapsedSeconds * 1.5));
+          if (simulatedProgress < 40) {
+            updateProgressDisplay(simulatedProgress, "Création de la scène IA...", "Interprétation sémantique du prompt", "Élaboration");
+          } else if (simulatedProgress < 75) {
+            updateProgressDisplay(simulatedProgress, "Synthèse des frames...", "Calcul du flux optique et des mouvements", "Animation");
+          } else {
+            updateProgressDisplay(simulatedProgress, "Finalisation du rendu...", "Encodage vidéo et filtres de netteté", "Finalisation");
+          }
 
-        // Fin des 4 secondes
-        if (elapsed >= totalDurationMs) {
-          clearInterval(intervalTimer);
-          setTimeout(() => {
-            showGenerationResult(promptValue);
-          }, 300);
-        }
-      }, 100);
+          try {
+            const statusRes = await fetch(`/api/status?id=${encodeURIComponent(generationId)}`);
+            if (statusRes.ok) {
+              const statusData = await statusRes.json();
+
+              if (statusData.status === 'completed' && statusData.videoUrl) {
+                clearInterval(currentPollingInterval);
+                updateProgressDisplay(100, "Rendu terminé !", "Chargement du lecteur", "Terminé");
+                setTimeout(() => {
+                  showGenerationResult(promptValue, statusData.videoUrl, statusData.cost);
+                  resolve(statusData);
+                }, 500);
+                return;
+              }
+
+              if (statusData.status === 'failed') {
+                clearInterval(currentPollingInterval);
+                alert("La génération a échoué : " + (statusData.error || "Raison inconnue") + ". Vos crédits ont été recrédités.");
+                setUiState('empty');
+                syncUserBalance();
+                resolve(null);
+                return;
+              }
+            }
+          } catch (pollErr) {
+            console.warn("Erreur polling status:", pollErr);
+          }
+
+          // Timeout après 3 minutes (180s)
+          if (elapsedSeconds > 180) {
+            clearInterval(currentPollingInterval);
+            alert("Le traitement prend plus de temps que prévu. La vidéo sera disponible sous peu.");
+            setUiState('empty');
+            resolve(null);
+          }
+        }, 3000);
+      });
     }
 
     // Passage à l'État 3 : RÉSULTAT
-    function showGenerationResult(promptText) {
+    function showGenerationResult(promptText, videoUrl, debitedCost) {
       setUiState('result');
 
       // Mise à jour des informations
@@ -873,13 +931,31 @@
       resultPromptEcho.textContent = `Prompt : « ${promptText} »`;
       echoFormat.textContent = currentAspectRatio;
 
-      // Lancement automatique de la vidéo
-      finalVideoPlayer.currentTime = 0;
-      finalVideoPlayer.play().then(() => {
-        updatePlayControlIcons(true);
-      }).catch(() => {
-        updatePlayControlIcons(false);
-      });
+      const costEcho = document.querySelector('#postResultBar .font-mono');
+      if (costEcho && debitedCost) {
+        costEcho.textContent = Number(debitedCost).toFixed(2) + ' $';
+      }
+
+      // Mise à jour du lien de téléchargement
+      const downloadBtn = document.getElementById('downloadBtn');
+      if (downloadBtn && videoUrl) {
+        downloadBtn.href = videoUrl;
+        downloadBtn.target = '_blank';
+      }
+
+      // Configuration et lecture de la vidéo
+      if (videoUrl) {
+        finalVideoPlayer.src = videoUrl;
+        finalVideoPlayer.currentTime = 0;
+        finalVideoPlayer.load();
+
+        finalVideoPlayer.play().then(() => {
+          updatePlayControlIcons(true);
+        }).catch((err) => {
+          console.warn("Lecture automatique bloquée par le navigateur (cliquez sur Play) :", err);
+          updatePlayControlIcons(false);
+        });
+      }
     }
 
     // Gestion centralisée des états du Canvas (empty | loading | result)
