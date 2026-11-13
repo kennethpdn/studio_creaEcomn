@@ -17,12 +17,21 @@ export default async function handler(req, res) {
 
     const data = doc.data();
 
+    const HIGGSFIELD_API_KEY = (
+      process.env.KEY_HIGSFIELD ||
+      process.env.KEY_HIGGSFIELD ||
+      process.env.HIGGSFIELD_API_KEY ||
+      process.env.HIGSFIELD_API_KEY ||
+      ''
+    ).trim();
+
     // Fallback Polling : si le statut est encore 'pending' et qu'un ID Higgsfield est disponible
-    if (data.status === 'pending' && (data.statusUrl || data.higgsfieldTaskId) && process.env.HIGGSFIELD_API_KEY) {
+    if (data.status === 'pending' && (data.statusUrl || data.higgsfieldTaskId) && HIGGSFIELD_API_KEY) {
       try {
         const checkUrl = data.statusUrl || `https://api.higgsfield.ai/requests/${data.higgsfieldTaskId}/status`;
-        const rawKey = process.env.HIGGSFIELD_API_KEY.trim();
-        const authHeader = rawKey.startsWith('Key ') || rawKey.startsWith('Bearer ') ? rawKey : `Key ${rawKey}`;
+        const authHeader = HIGGSFIELD_API_KEY.startsWith('Key ') || HIGGSFIELD_API_KEY.startsWith('Bearer ')
+          ? HIGGSFIELD_API_KEY
+          : `Key ${HIGGSFIELD_API_KEY}`;
 
         const hfRes = await fetch(checkUrl, {
           headers: {
