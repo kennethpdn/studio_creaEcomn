@@ -300,6 +300,66 @@
               </div>
             </div>
 
+            <!-- SECTION : Image de référence (Optionnelle) -->
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between">
+                <label for="reference-image" class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-image text-purple-400"></i>
+                  <span>Image de référence</span>
+                  <span class="text-[10px] text-slate-500 font-normal lowercase">(optionnel)</span>
+                </label>
+                <button
+                  type="button"
+                  id="removeImgBtn"
+                  onclick="clearReferenceImage()"
+                  class="hidden text-[10px] text-rose-400 hover:text-rose-300 transition font-medium flex items-center gap-1 cursor-pointer"
+                >
+                  <i class="fa-solid fa-trash-can text-[10px]"></i>
+                  <span>Supprimer</span>
+                </button>
+              </div>
+
+              <!-- Zone d'import interactive -->
+              <div
+                id="dropZoneContainer"
+                class="glass-input rounded-2xl p-3.5 border border-dashed border-white/10 hover:border-purple-500/40 transition-all cursor-pointer relative group"
+                onclick="document.getElementById('reference-image').click()"
+              >
+                <input
+                  type="file"
+                  id="reference-image"
+                  accept="image/png, image/jpeg, image/webp"
+                  class="hidden"
+                  onchange="handleReferenceImageSelect(event)"
+                />
+
+                <!-- État 1 : Vide (Invite à importer) -->
+                <div id="uploadPlaceholder" class="flex items-center justify-center gap-3 py-1">
+                  <div class="w-8 h-8 rounded-full bg-white/[0.04] group-hover:bg-purple-500/20 text-slate-400 group-hover:text-purple-300 transition flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-xs text-slate-200 font-medium">Ajouter une image de référence</p>
+                    <p class="text-[10px] text-slate-500">Image-to-Video (PNG, JPG, WebP)</p>
+                  </div>
+                </div>
+
+                <!-- État 2 : Image sélectionnée (Aperçu) -->
+                <div id="uploadPreview" class="hidden flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <img id="refThumbnail" src="" alt="Aperçu" class="w-10 h-10 rounded-xl object-cover border border-purple-500/40 shadow-md flex-shrink-0" />
+                    <div class="min-w-0 text-left">
+                      <p id="refFilename" class="text-xs text-white font-medium truncate">image.jpg</p>
+                      <p id="refFilesize" class="text-[10px] text-purple-400 font-mono">0 KB</p>
+                    </div>
+                  </div>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 flex-shrink-0">
+                    Prête
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <!-- Informations tarifaires du rendu -->
             <div class="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05] flex items-center justify-between text-xs">
               <span class="text-slate-400">Coût estimé / génération :</span>
@@ -787,12 +847,52 @@
       }, 3000);
     }
 
+    // --- GESTION DE L'IMAGE DE RÉFÉRENCE (Image-to-Video) ---
+    function handleReferenceImageSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const placeholder = document.getElementById('uploadPlaceholder');
+      const preview = document.getElementById('uploadPreview');
+      const thumbnail = document.getElementById('refThumbnail');
+      const filename = document.getElementById('refFilename');
+      const filesize = document.getElementById('refFilesize');
+      const removeBtn = document.getElementById('removeImgBtn');
+
+      filename.textContent = file.name;
+      filesize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        thumbnail.src = e.target.result;
+        placeholder.classList.add('hidden');
+        preview.classList.remove('hidden');
+        removeBtn.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearReferenceImage() {
+      const fileInput = document.getElementById('reference-image');
+      const placeholder = document.getElementById('uploadPlaceholder');
+      const preview = document.getElementById('uploadPreview');
+      const thumbnail = document.getElementById('refThumbnail');
+      const removeBtn = document.getElementById('removeImgBtn');
+
+      if (fileInput) fileInput.value = '';
+      if (thumbnail) thumbnail.src = '';
+      if (placeholder) placeholder.classList.remove('hidden');
+      if (preview) preview.classList.add('hidden');
+      if (removeBtn) removeBtn.classList.add('hidden');
+    }
+
     // --- LOGIQUE PRINCIPALE DE GÉNÉRATION ---
 
     let currentPollingInterval = null;
 
     async function startGeneration() {
       const promptValue = promptInput.value.trim();
+      const fileInput = document.getElementById('reference-image');
 
       // 1. Validation du prompt
       if (!promptValue) {
@@ -812,9 +912,36 @@
 
       // 3. Passage à l'État de chargement
       setUiState('loading');
-      updateProgressDisplay(5, "Initialisation...", "Connexion aux serveurs GPU IA", "Requête");
+      updateProgressDisplay(5, "Initialisation...", "Préparation de la scène...", "Requête");
 
       try {
+        let uploadedImageUrl = null;
+
+        // Étape optionnelle : Téléchargement de l'image de référence vers ImgBB si présente
+        if (fileInput && fileInput.files && fileInput.files.length > 0) {
+          updateProgressDisplay(10, "Téléchargement de l'image...", "Hébergement haute résolution sur ImgBB", "Upload");
+
+          const imgbbKey = window.IMGBB_API_KEY || localStorage.getItem('imgbb_api_key') || 'VOTRE_CLE_IMGBB_ICI';
+          const formData = new FormData();
+          formData.append('image', fileInput.files[0]);
+
+          const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${encodeURIComponent(imgbbKey)}`, {
+            method: 'POST',
+            body: formData,
+          });
+
+          const imgbbData = await imgbbResponse.json();
+          if (imgbbData && imgbbData.success) {
+            uploadedImageUrl = imgbbData.data.url;
+            console.log("Image de référence hébergée avec succès sur ImgBB :", uploadedImageUrl);
+          } else {
+            const errDetail = imgbbData?.error?.message || "Vérifiez votre clé API ImgBB.";
+            throw new Error(`Échec de l'upload de l'image sur ImgBB (${errDetail})`);
+          }
+        }
+
+        updateProgressDisplay(15, "Vérification des crédits et GPU...", "Allocation des serveurs de rendu", "IA");
+
         // 4. Appel de l'endpoint serverless Vercel
         const res = await fetch('/api/generate', {
           method: 'POST',
@@ -825,6 +952,7 @@
             model: currentModel,
             duration: 5,
             aspectRatio: currentAspectRatio,
+            imageUrl: uploadedImageUrl,
           }),
         });
 

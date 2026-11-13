@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { userId, prompt, model, duration, aspectRatio } = req.body;
+    const { userId, prompt, model, duration, aspectRatio, imageUrl } = req.body;
 
     if (!prompt || !model) {
       return res.status(400).json({
@@ -87,6 +87,7 @@ export default async function handler(req, res) {
         cost: totalCost,
         duration: effectiveDuration,
         aspectRatio: aspectRatio || '16:9',
+        imageUrl: imageUrl || null,
         status: 'pending',
         videoUrl: null,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -110,6 +111,12 @@ export default async function handler(req, res) {
         duration: effectiveDuration,
         aspect_ratio: aspectRatio === '9:16' ? '9:16' : (aspectRatio === '1:1' ? '1:1' : 'auto'),
       };
+    }
+
+    // Support de l'image de référence (Image-to-Video)
+    if (imageUrl) {
+      requestPayload.image_url = imageUrl;
+      requestPayload.first_frame_url = imageUrl;
     }
 
     const authHeader = HIGGSFIELD_API_KEY.startsWith('Key ') || HIGGSFIELD_API_KEY.startsWith('Bearer ')
