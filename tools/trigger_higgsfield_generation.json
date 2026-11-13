@@ -1,0 +1,29 @@
+{
+  "name": "trigger_higgsfield_generation",
+  "description": "Déclenche la génération d'une vidéo ou image IA via l'API externe Higgsfield en passant par la fonction serverless Vercel sécurisée. Extrait et normalise le prompt, le nom de modèle strict et la durée, valide le solde utilisateur dans Firestore et initie la tâche.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "prompt": {
+        "type": "string",
+        "description": "Description textuelle détaillée de la scène, du mouvement de caméra, du style et de l'éclairage voulu pour la génération."
+      },
+      "model_name": {
+        "type": "string",
+        "enum": ["kling-3.0", "minimax-h3", "soul-2"],
+        "description": "Identifiant strict du modèle Higgsfield supporté : 'kling-3.0' (Kling 3.0), 'minimax-h3' (MiniMax H3), ou 'soul-2' (Soul 2 Image)."
+      },
+      "duration": {
+        "type": "integer",
+        "enum": [5, 10],
+        "default": 5,
+        "description": "Durée de la vidéo générée en secondes. Par défaut : 5 secondes."
+      },
+      "userId": {
+        "type": "string",
+        "description": "Identifiant unique de l'utilisateur demandeur pour la facturation et le contrôle de solde Firestore."
+      }
+    },
+    "required": ["prompt", "model_name", "userId"]
+  }
+}

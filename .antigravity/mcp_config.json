@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "higgsfield-studio": {
+      "command": "node",
+      "args": ["tools/higgsfield_tool.js"],
+      "env": {
+        "VERCEL_GENERATE_ENDPOINT": "https://votre-projet.vercel.app/api/generate",
+        "INTERNAL_API_SECRET": "votre-cle-secrete-interne"
+      }
+    }
+  }
+}
