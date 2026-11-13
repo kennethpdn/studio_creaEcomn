@@ -96,27 +96,32 @@ export default async function handler(req, res) {
     });
 
     // Détermination de l'endpoint exact Higgsfield
+    const WEBHOOK_URL = process.env.WEBHOOK_URL || `${process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'https://studiocreaecomn.vercel.app'}/api/webhook`;
+
     let higgsfieldEndpoint = 'https://api.higgsfield.ai/kling-video/v3.0/std/text-to-video';
     let requestPayload = {
       prompt: prompt.trim(),
+      model: model,
       duration: effectiveDuration,
       aspect_ratio: aspectRatio || '16:9',
       sound: 'on',
+      image_url: imageUrl || undefined, // Relai de l'URL de l'image à l'IA
+      first_frame_url: imageUrl || undefined,
+      webhook_url: WEBHOOK_URL,
+      custom_id: generationRef.id,
     };
 
     if (modelKey.includes('minimax')) {
       higgsfieldEndpoint = 'https://api.higgsfield.ai/minimax/h3/text-to-video';
       requestPayload = {
         prompt: prompt.trim(),
+        model: model,
         duration: effectiveDuration,
         aspect_ratio: aspectRatio === '9:16' ? '9:16' : (aspectRatio === '1:1' ? '1:1' : 'auto'),
+        image_url: imageUrl || undefined, // Relai de l'URL de l'image à l'IA
+        webhook_url: WEBHOOK_URL,
+        custom_id: generationRef.id,
       };
-    }
-
-    // Support de l'image de référence (Image-to-Video)
-    if (imageUrl) {
-      requestPayload.image_url = imageUrl;
-      requestPayload.first_frame_url = imageUrl;
     }
 
     const authHeader = HIGGSFIELD_API_KEY.startsWith('Key ') || HIGGSFIELD_API_KEY.startsWith('Bearer ')
