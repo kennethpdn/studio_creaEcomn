@@ -921,7 +921,7 @@
         if (fileInput && fileInput.files && fileInput.files.length > 0) {
           updateProgressDisplay(10, "Téléchargement de l'image...", "Hébergement haute résolution sur ImgBB", "Upload");
 
-          const imgbbKey = window.IMGBB_API_KEY || localStorage.getItem('imgbb_api_key') || 'VOTRE_CLE_IMGBB_ICI';
+          const imgbbKey = window.IMGBB_API_KEY || localStorage.getItem('imgbb_api_key') || 'da18a6af70a143a0949712aeae32fb8a';
           const formData = new FormData();
           formData.append('image', fileInput.files[0]);
 
