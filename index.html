@@ -1,9 +1,17 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full bg-[#080B11] text-slate-100">
+<html lang="fr" class="h-full bg-[#050505] text-white">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Studio Créatif Pro | Générateur IA Vidéo & Image</title>
+  <title>Studio Créatif Pro | Moteur IA Vidéo & Image</title>
+
+  <!-- Google Fonts : Montserrat pour les titres, Raleway pour le corps -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -12,36 +20,36 @@
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            montserrat: ['Montserrat', 'sans-serif'],
+            raleway: ['Raleway', 'sans-serif'],
+            sans: ['Raleway', 'sans-serif'],
+          },
           colors: {
             studio: {
-              950: '#07090e',
-              900: '#0c101a',
-              850: '#111726',
-              800: '#172033',
-              700: '#24324f',
+              950: '#050505',
+              900: '#0a0a0c',
+              850: '#111114',
+              800: '#16161c',
+              700: '#22222b',
             },
             accent: {
               purple: '#8b5cf6',
-              cyan: '#06b6d4',
-              pink: '#ec4899',
+              violet: '#7c3aed',
             }
           },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-          },
           animation: {
-            'shimmer': 'shimmer 2.5s infinite linear',
-            'pulse-glow': 'pulse-glow 3s infinite ease-in-out',
-            'spin-slow': 'spin 8s linear infinite',
+            'pulse-glow': 'pulseGlow 3s infinite ease-in-out',
+            'float': 'float 6s ease-in-out infinite',
           },
           keyframes: {
-            shimmer: {
-              '0%': { backgroundPosition: '-200% 0' },
-              '100%': { backgroundPosition: '200% 0' }
+            pulseGlow: {
+              '0%, 100%': { opacity: 0.4, transform: 'scale(1)' },
+              '50%': { opacity: 0.8, transform: 'scale(1.03)' }
             },
-            'pulse-glow': {
-              '0%, 100%': { opacity: 0.35, transform: 'scale(1)' },
-              '50%': { opacity: 0.65, transform: 'scale(1.05)' }
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-6px)' }
             }
           }
         }
@@ -49,629 +57,496 @@
     };
   </script>
 
-  <!-- Google Fonts & Font Awesome Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-
   <style>
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Raleway', sans-serif;
+      background-color: #050505;
     }
-    .font-mono {
-      font-family: 'JetBrains Mono', monospace;
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Montserrat', sans-serif;
     }
-    /* Effet Glassmorphism Runway/Leonardo */
+
+    /* Subtil Glassmorphism sans lourdeur */
     .glass-panel {
-      background: rgba(15, 22, 36, 0.65);
+      background: rgba(17, 17, 20, 0.72);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
     .glass-input {
-      background: rgba(10, 15, 26, 0.7);
+      background: rgba(10, 10, 13, 0.65);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .glass-badge {
-      background: rgba(16, 24, 40, 0.8);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .glass-pill {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
-    /* Shimmer pour états de chargement */
-    .shimmer-bg {
-      background: linear-gradient(90deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.02) 100%);
-      background-size: 200% 100%;
-      animation: shimmer 2s infinite linear;
+    .glass-pill:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(139, 92, 246, 0.4);
     }
-    /* Scrollbar personnalisée */
+
+    /* Bouton CTA blanc ultra-premium avec lueur douce */
+    .btn-cta-glow {
+      box-shadow: 0 0 25px -4px rgba(255, 255, 255, 0.35), 0 0 15px -2px rgba(139, 92, 246, 0.3);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-cta-glow:hover {
+      box-shadow: 0 0 35px 2px rgba(255, 255, 255, 0.5), 0 0 30px 4px rgba(139, 92, 246, 0.5);
+      transform: translateY(-1px);
+    }
+
+    /* Scrollbars minimalistes */
     ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
     }
     ::-webkit-scrollbar-track {
-      background: rgba(10, 15, 26, 0.5);
+      background: #050505;
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.12);
       border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(139, 92, 246, 0.4);
     }
   </style>
 </head>
+<body class="min-h-screen flex flex-col bg-[#050505] text-white antialiased selection:bg-purple-600 selection:text-white">
 
-<body class="min-h-full flex flex-col antialiased selection:bg-indigo-500 selection:text-white relative overflow-x-hidden text-slate-100 bg-[#080B11]">
-
-  <!-- LUEURS AMBIANTES (Dark Mode Leonardo/Runway style) -->
-  <div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-    <div class="absolute -top-32 left-1/4 w-[600px] h-[350px] bg-purple-600/15 blur-[140px] rounded-full animate-pulse-glow"></div>
-    <div class="absolute top-1/2 -right-32 w-[500px] h-[500px] bg-cyan-600/10 blur-[150px] rounded-full"></div>
-    <div class="absolute -bottom-20 left-10 w-[550px] h-[450px] bg-indigo-600/10 blur-[150px] rounded-full"></div>
-    <!-- Grille de perspective cybernétique subtile -->
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff04_1px,transparent_1px),linear-gradient(to_bottom,#ffffff04_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_10%,#000_60%,transparent_100%)]"></div>
-  </div>
-
-  <!-- 1. EN-TÊTE (HEADER) -->
-  <header class="sticky top-0 z-50 backdrop-blur-xl bg-[#080B11]/80 border-b border-white/[0.07]">
-    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      
-      <!-- Logo / Titre 'Studio Créatif Pro' -->
-      <div class="flex items-center gap-3">
-        <div class="relative group cursor-pointer">
-          <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-400 rounded-2xl blur-sm opacity-60 group-hover:opacity-100 transition duration-300"></div>
-          <div class="relative w-10 h-10 rounded-xl bg-[#0c101a] border border-white/10 flex items-center justify-center shadow-lg">
-            <i class="fa-solid fa-wand-magic-sparkles text-transparent bg-clip-text bg-gradient-to-tr from-purple-400 to-cyan-300 text-base"></i>
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="font-extrabold text-base sm:text-lg tracking-tight text-white flex items-center gap-2">
-            Studio Créatif Pro
-          </span>
-          <span class="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-gradient-to-r from-purple-500/15 to-cyan-500/15 border border-purple-500/30 text-purple-300 shadow-sm">
-            <span class="w-1 h-1 rounded-full bg-purple-400 animate-pulse"></span> v3.0
-          </span>
+  <!-- ========================================================================= -->
+  <!-- 1. HEADER (EN-TÊTE ULTRA-ÉPURÉ) -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-white/[0.05] px-6 lg:px-10 py-3.5 flex items-center justify-between">
+    <!-- Gauche : Logo & Titre Montserrat -->
+    <div class="flex items-center gap-3.5">
+      <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-500 to-white/90 p-[1px] shadow-lg shadow-purple-950/40 flex items-center justify-center">
+        <div class="w-full h-full bg-[#0a0a0c] rounded-full flex items-center justify-center">
+          <i class="fa-solid fa-shapes text-sm text-purple-300"></i>
         </div>
       </div>
-
-      <!-- Badge Stylisé Solde Dynamique & Actions -->
-      <div class="flex items-center gap-3">
-        <!-- Badge Solde -->
-        <div class="glass-badge flex items-center gap-2.5 px-4 py-1.5 rounded-full shadow-md hover:border-white/20 transition-all duration-200">
-          <span class="flex h-2.5 w-2.5 relative">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+      <div>
+        <h1 class="text-base sm:text-lg font-bold font-montserrat tracking-tight text-white flex items-center gap-2">
+          <span>Studio Créatif Pro</span>
+          <span class="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20 uppercase tracking-widest font-raleway">
+            IA v3
           </span>
-          <span class="text-xs text-slate-400 font-medium">Solde :</span>
-          <span id="balanceDisplay" class="text-xs sm:text-sm font-bold tracking-wide text-emerald-400 font-mono">10.00 $</span>
-          <button type="button" onclick="topUpBalance()" title="Recharger le compte" class="text-slate-400 hover:text-white transition ml-0.5 p-1">
-            <i class="fa-solid fa-circle-plus text-xs hover:scale-110 transition-transform"></i>
-          </button>
-        </div>
+        </h1>
+      </div>
+    </div>
 
-        <!-- Profil Utilisateur -->
-        <div class="hidden sm:flex items-center gap-2 pl-2 border-l border-white/10">
-          <div class="relative cursor-pointer group">
-            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 border border-white/20 flex items-center justify-center text-xs font-semibold text-white shadow">
-              CP
-            </div>
-            <span class="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-400 border border-[#080B11]"></span>
-          </div>
-        </div>
+    <!-- Droite : Badge Solde élégant & Actions -->
+    <div class="flex items-center gap-3">
+      <!-- Badge de Solde -->
+      <div class="flex items-center gap-2.5 px-4 py-1.5 rounded-full glass-panel border border-white/10 shadow-sm">
+        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+        <span class="text-xs text-gray-400 font-medium">Solde :</span>
+        <span id="balanceDisplay" class="text-xs font-bold text-white font-montserrat tracking-wide">10.00 $</span>
+        <button
+          type="button"
+          onclick="topUpBalance()"
+          title="Recharger le compte de démonstration"
+          class="ml-1 text-gray-400 hover:text-purple-300 transition text-[11px] cursor-pointer"
+        >
+          <i class="fa-solid fa-circle-plus"></i>
+        </button>
       </div>
 
+      <!-- Profil utilisateur discret -->
+      <div class="w-8 h-8 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center text-xs text-gray-300">
+        <i class="fa-solid fa-user text-[11px]"></i>
+      </div>
     </div>
   </header>
 
-  <!-- CONTENEUR PRINCIPAL (Layout Studio : Sidebar Gauche + Canvas Central) -->
-  <main class="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    <div class="flex flex-col lg:flex-row gap-6 items-start">
+  <!-- ========================================================================= -->
+  <!-- 2. CORPS PRINCIPAL : PANNEAU LATÉRAL + CANVAS DE CRÉATION -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 max-w-[1680px] w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-6">
 
-      <!-- ========================================================================= -->
-      <!-- 2. PANNEAU LATÉRAL GAUCHE (OPTIONS DE GÉNÉRATION) -->
-      <!-- ========================================================================= -->
-      <aside class="w-full lg:w-[380px] lg:shrink-0 flex flex-col gap-5">
-        <div class="glass-panel rounded-3xl p-5 sm:p-6 shadow-2xl relative overflow-hidden">
-          
-          <!-- Lueur d'accent décorative en haut de carte -->
-          <div class="absolute -top-16 -right-16 w-32 h-32 bg-purple-500/20 blur-3xl pointer-events-none rounded-full"></div>
-
-          <div class="flex items-center justify-between pb-4 border-b border-white/[0.07]">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-sliders text-purple-400 text-sm"></i>
-              <h2 class="text-sm font-bold text-white tracking-wide">Paramètres de Création</h2>
-            </div>
-            <span class="text-[11px] font-medium text-slate-400 font-mono bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/5">Studio</span>
+    <!-- ----------------------------------------------------------------------- -->
+    <!-- PANNEAU LATÉRAL (Paramètres de rendu - à gauche) -->
+    <!-- ----------------------------------------------------------------------- -->
+    <aside class="w-full lg:w-[390px] flex-shrink-0 flex flex-col gap-6">
+      <div class="glass-panel rounded-3xl p-6 border border-white/[0.05] shadow-2xl flex flex-col justify-between h-full space-y-6">
+        
+        <div class="space-y-6">
+          <!-- Titre de section -->
+          <div class="flex items-center justify-between pb-1 border-b border-white/[0.04]">
+            <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 font-montserrat">
+              Paramètres de scène
+            </h2>
+            <span class="text-[10px] text-purple-400 font-medium">Temps réel</span>
           </div>
 
-          <form id="generatorOptionsForm" class="mt-5 space-y-6" onsubmit="event.preventDefault(); startGeneration();">
-            
-            <!-- SECTION : Type de rendu (Tags cliquables) -->
-            <div class="space-y-2.5">
-              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Type de rendu
-              </label>
-              <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Type de rendu">
-                <!-- Tag Vidéo -->
-                <button
-                  type="button"
-                  data-type="video"
-                  onclick="selectRenderType('video')"
-                  class="type-btn active flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-2xl border text-xs font-medium transition-all duration-200 cursor-pointer bg-gradient-to-b from-purple-500/20 to-indigo-500/10 border-purple-500/50 text-white shadow-lg shadow-purple-950/40"
-                >
-                  <i class="fa-solid fa-film text-purple-400 text-sm"></i>
-                  <span>Vidéo</span>
-                </button>
-
-                <!-- Tag Image -->
-                <button
-                  type="button"
-                  data-type="image"
-                  onclick="selectRenderType('image')"
-                  class="type-btn flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-2xl border text-xs font-medium transition-all duration-200 cursor-pointer bg-white/[0.03] border-white/[0.06] text-slate-400 hover:text-slate-200 hover:bg-white/[0.06]"
-                >
-                  <i class="fa-solid fa-image text-slate-400 text-sm"></i>
-                  <span>Image</span>
-                </button>
-
-                <!-- Tag Animation -->
-                <button
-                  type="button"
-                  data-type="animation"
-                  onclick="selectRenderType('animation')"
-                  class="type-btn flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-2xl border text-xs font-medium transition-all duration-200 cursor-pointer bg-white/[0.03] border-white/[0.06] text-slate-400 hover:text-slate-200 hover:bg-white/[0.06]"
-                >
-                  <i class="fa-solid fa-sparkles text-slate-400 text-sm"></i>
-                  <span>Animation</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- SECTION : Format / Aspect Ratio (Grille d'icônes/boutons) -->
-            <div class="space-y-2.5">
-              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Format d'image / Ratio
-              </label>
-              <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Format et ratio">
-                <!-- 16:9 Paysage -->
-                <button
-                  type="button"
-                  data-ratio="16:9"
-                  onclick="selectAspectRatio('16:9')"
-                  class="ratio-btn active flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-medium transition-all duration-200 cursor-pointer bg-gradient-to-b from-purple-500/20 to-indigo-500/10 border-purple-500/50 text-white shadow-lg shadow-purple-950/40"
-                >
-                  <div class="w-7 h-4 rounded-sm border border-current opacity-90 flex items-center justify-center">
-                    <span class="text-[8px] font-mono leading-none">16:9</span>
-                  </div>
-                  <span class="text-[11px] font-medium">Paysage</span>
-                </button>
-
-                <!-- 9:16 Portrait TikTok -->
-                <button
-                  type="button"
-                  data-ratio="9:16"
-                  onclick="selectAspectRatio('9:16')"
-                  class="ratio-btn flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-medium transition-all duration-200 cursor-pointer bg-white/[0.03] border-white/[0.06] text-slate-400 hover:text-slate-200 hover:bg-white/[0.06]"
-                >
-                  <div class="w-4 h-7 rounded-sm border border-current opacity-80 flex items-center justify-center">
-                    <span class="text-[7px] font-mono leading-none">9:16</span>
-                  </div>
-                  <span class="text-[11px] font-medium">TikTok</span>
-                </button>
-
-                <!-- 1:1 Carré -->
-                <button
-                  type="button"
-                  data-ratio="1:1"
-                  onclick="selectAspectRatio('1:1')"
-                  class="ratio-btn flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-medium transition-all duration-200 cursor-pointer bg-white/[0.03] border-white/[0.06] text-slate-400 hover:text-slate-200 hover:bg-white/[0.06]"
-                >
-                  <div class="w-5 h-5 rounded-sm border border-current opacity-80 flex items-center justify-center">
-                    <span class="text-[7px] font-mono leading-none">1:1</span>
-                  </div>
-                  <span class="text-[11px] font-medium">Carré</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- SECTION : Choix du Modèle (Menu déroulant stylisé) -->
-            <div class="space-y-2.5">
-              <div class="flex items-center justify-between">
-                <label for="modelSelect" class="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                  Modèle IA
-                </label>
-                <span class="text-[10px] text-purple-400 font-medium">Moteur v3</span>
-              </div>
-              <div class="relative">
-                <select
-                  id="modelSelect"
-                  class="w-full appearance-none glass-input text-slate-100 text-xs sm:text-sm rounded-2xl px-4 py-3.5 pr-10 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition cursor-pointer font-medium"
-                >
-                  <option value="kling-3.0" class="bg-[#0c101a] text-slate-100 py-2">Kling 3.0 (Réaliste)</option>
-                  <option value="minimax-h3" class="bg-[#0c101a] text-slate-100 py-2">MiniMax H3 (Cinématique)</option>
-                  <option value="animexl" class="bg-[#0c101a] text-slate-100 py-2">AnimeXL (Toon/Manga)</option>
-                  <option value="stable-video" class="bg-[#0c101a] text-slate-100 py-2">Stable Video Diffusion</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
-                  <i class="fa-solid fa-chevron-down text-xs"></i>
-                </div>
-              </div>
-            </div>
-
-            <!-- SECTION : Image de référence (Optionnelle) -->
-            <div class="space-y-2.5">
-              <div class="flex items-center justify-between">
-                <label for="reference-image" class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                  <i class="fa-solid fa-image text-purple-400"></i>
-                  <span>Image de référence</span>
-                  <span class="text-[10px] text-slate-500 font-normal lowercase">(optionnel)</span>
-                </label>
-                <button
-                  type="button"
-                  id="removeImgBtn"
-                  onclick="clearReferenceImage()"
-                  class="hidden text-[10px] text-rose-400 hover:text-rose-300 transition font-medium flex items-center gap-1 cursor-pointer"
-                >
-                  <i class="fa-solid fa-trash-can text-[10px]"></i>
-                  <span>Supprimer</span>
-                </button>
-              </div>
-
-              <!-- Zone d'import interactive -->
-              <div
-                id="dropZoneContainer"
-                class="glass-input rounded-2xl p-3.5 border border-dashed border-white/10 hover:border-purple-500/40 transition-all cursor-pointer relative group"
-                onclick="document.getElementById('reference-image').click()"
-              >
-                <input
-                  type="file"
-                  id="reference-image"
-                  accept="image/png, image/jpeg, image/webp"
-                  class="hidden"
-                  onchange="handleReferenceImageSelect(event)"
-                />
-
-                <!-- État 1 : Vide (Invite à importer) -->
-                <div id="uploadPlaceholder" class="flex items-center justify-center gap-3 py-1">
-                  <div class="w-8 h-8 rounded-full bg-white/[0.04] group-hover:bg-purple-500/20 text-slate-400 group-hover:text-purple-300 transition flex items-center justify-center flex-shrink-0">
-                    <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
-                  </div>
-                  <div class="text-left">
-                    <p class="text-xs text-slate-200 font-medium">Ajouter une image de référence</p>
-                    <p class="text-[10px] text-slate-500">Image-to-Video (PNG, JPG, WebP)</p>
-                  </div>
-                </div>
-
-                <!-- État 2 : Image sélectionnée (Aperçu) -->
-                <div id="uploadPreview" class="hidden flex items-center justify-between gap-3">
-                  <div class="flex items-center gap-3 min-w-0">
-                    <img id="refThumbnail" src="" alt="Aperçu" class="w-10 h-10 rounded-xl object-cover border border-purple-500/40 shadow-md flex-shrink-0" />
-                    <div class="min-w-0 text-left">
-                      <p id="refFilename" class="text-xs text-white font-medium truncate">image.jpg</p>
-                      <p id="refFilesize" class="text-[10px] text-purple-400 font-mono">0 KB</p>
-                    </div>
-                  </div>
-                  <span class="px-2 py-0.5 rounded-full text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 flex-shrink-0">
-                    Prête
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Informations tarifaires du rendu -->
-            <div class="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.05] flex items-center justify-between text-xs">
-              <span class="text-slate-400">Coût estimé / génération :</span>
-              <span class="font-mono font-semibold text-purple-300">1.12 $</span>
-            </div>
-
-            <!-- BOUTON D'ACTION PRINCIPAL : Rounded-Full, Gros bouton noir ou dégradé moderne ancré en bas -->
-            <div class="pt-2">
-              <button
-                type="submit"
-                id="generateBtn"
-                class="w-full group relative inline-flex items-center justify-center p-0.5 mb-2 overflow-hidden text-sm font-semibold text-white rounded-full transition-all duration-300 cursor-pointer shadow-xl shadow-purple-950/50 hover:shadow-purple-600/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              >
-                <!-- Contour dégradé lumineux -->
-                <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 rounded-full group-hover:from-purple-500 group-hover:to-cyan-400 transition-all duration-300"></span>
-                <!-- Intérieur foncé style Runway / Leonardo -->
-                <span class="relative w-full px-6 py-4 rounded-full bg-[#0c101a]/90 group-hover:bg-[#0c101a]/80 transition-all duration-300 flex items-center justify-center gap-3">
-                  <i class="fa-solid fa-wand-sparkles text-purple-400 group-hover:rotate-12 transition-transform duration-300"></i>
-                  <span class="tracking-wide font-bold">Générer la scène</span>
-                  <i class="fa-solid fa-arrow-right text-xs opacity-70 group-hover:translate-x-1 transition-transform"></i>
-                </span>
-              </button>
-              <p class="text-[11px] text-center text-slate-500 mt-1">Débit automatique sur votre solde de crédits</p>
-            </div>
-
-          </form>
-
-        </div>
-      </aside>
-
-      <!-- ========================================================================= -->
-      <!-- 3. ZONE PRINCIPALE CENTRALE (LE CANVAS) -->
-      <!-- ========================================================================= -->
-      <section class="flex-1 w-full flex flex-col gap-5 min-w-0">
-        
-        <!-- ZONE DE TEXTE (PROMPT) : Grand champ sans bordures dures -->
-        <div class="glass-panel rounded-3xl p-5 sm:p-6 shadow-2xl relative focus-within:border-purple-500/50 focus-within:ring-1 focus-within:ring-purple-500/20 transition-all duration-300">
-          <div class="flex items-center justify-between mb-3">
-            <label for="promptInput" class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-              <i class="fa-regular fa-message-dots text-purple-400"></i>
-              Prompt de création
+          <!-- Type de rendu (Boutons rounded-full) -->
+          <div class="space-y-2.5">
+            <label class="block text-xs font-medium text-gray-400">
+              Type de rendu
             </label>
-            <div class="flex items-center gap-3">
+            <div class="grid grid-cols-3 gap-2 p-1 rounded-full bg-black/60 border border-white/[0.05]">
               <button
                 type="button"
-                onclick="insertRandomPrompt()"
-                class="text-[11px] text-purple-400 hover:text-purple-300 transition flex items-center gap-1 font-medium cursor-pointer"
+                id="btnTypeVideo"
+                onclick="selectRenderType('video')"
+                class="render-type-btn py-2 px-3 rounded-full text-xs font-medium transition-all text-white bg-white/10 border border-white/10 shadow-sm"
               >
-                <i class="fa-solid fa-dice"></i> Idée inspirante
+                <i class="fa-solid fa-video text-[10px] mr-1"></i> Vidéo
               </button>
-              <span id="charCount" class="text-[11px] font-mono text-slate-500">0 / 1000</span>
+              <button
+                type="button"
+                id="btnTypeImage"
+                onclick="selectRenderType('image')"
+                class="render-type-btn py-2 px-3 rounded-full text-xs font-medium transition-all text-gray-400 hover:text-white"
+              >
+                <i class="fa-solid fa-image text-[10px] mr-1"></i> Image
+              </button>
+              <button
+                type="button"
+                id="btnTypeAnim"
+                onclick="selectRenderType('animation')"
+                class="render-type-btn py-2 px-3 rounded-full text-xs font-medium transition-all text-gray-400 hover:text-white"
+              >
+                <i class="fa-solid fa-wand-magic-sparkles text-[10px] mr-1"></i> Animation
+              </button>
             </div>
           </div>
 
-          <!-- Textarea sans bordures dures prenant toute la largeur -->
-          <div class="relative">
-            <textarea
-              id="promptInput"
-              rows="3"
-              placeholder="Décrivez votre scène en détail..."
-              class="w-full bg-transparent border-0 text-slate-100 placeholder-slate-500 text-sm sm:text-base resize-none focus:outline-none focus:ring-0 leading-relaxed font-normal p-0 min-h-[90px]"
-            ></textarea>
+          <!-- Ratio d'aspect (Boutons rounded-full) -->
+          <div class="space-y-2.5">
+            <label class="block text-xs font-medium text-gray-400">
+              Format d'affichage
+            </label>
+            <div class="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                id="btnRatio169"
+                onclick="selectAspectRatio('16:9')"
+                class="ratio-btn py-2.5 px-3 rounded-full text-xs font-medium transition-all text-white bg-white/10 border border-white/10 flex items-center justify-center gap-1.5 shadow-sm"
+              >
+                <span class="text-[9px] font-mono opacity-70">16:9</span>
+                <span>Paysage</span>
+              </button>
+              <button
+                type="button"
+                id="btnRatio916"
+                onclick="selectAspectRatio('9:16')"
+                class="ratio-btn py-2.5 px-3 rounded-full text-xs font-medium transition-all text-gray-400 hover:text-white border border-white/[0.04] bg-white/[0.02] flex items-center justify-center gap-1.5"
+              >
+                <span class="text-[9px] font-mono opacity-70">9:16</span>
+                <span>TikTok</span>
+              </button>
+              <button
+                type="button"
+                id="btnRatio11"
+                onclick="selectAspectRatio('1:1')"
+                class="ratio-btn py-2.5 px-3 rounded-full text-xs font-medium transition-all text-gray-400 hover:text-white border border-white/[0.04] bg-white/[0.02] flex items-center justify-center gap-1.5"
+              >
+                <span class="text-[9px] font-mono opacity-70">1:1</span>
+                <span>Carré</span>
+              </button>
+            </div>
           </div>
 
-          <!-- Tags de style rapides -->
-          <div class="pt-3 mt-3 border-t border-white/[0.06] flex items-center gap-2 overflow-x-auto pb-1 text-[11px]">
-            <span class="text-slate-500 whitespace-nowrap text-[10px] uppercase font-semibold">Styles :</span>
-            <button type="button" onclick="appendPromptTag('éclairage volumétrique 8K, photoréaliste')" class="px-2.5 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] text-slate-400 hover:text-slate-200 border border-white/5 whitespace-nowrap transition cursor-pointer">+ Photoréaliste</button>
-            <button type="button" onclick="appendPromptTag('plan travelling cinématique, 60fps')" class="px-2.5 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] text-slate-400 hover:text-slate-200 border border-white/5 whitespace-nowrap transition cursor-pointer">+ Cinématique</button>
-            <button type="button" onclick="appendPromptTag('ambiance cyberpunk sous la pluie, néons bleus')" class="px-2.5 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] text-slate-400 hover:text-slate-200 border border-white/5 whitespace-nowrap transition cursor-pointer">+ Cyberpunk</button>
-            <button type="button" onclick="appendPromptTag('style animation japonaise Makoto Shinkai')" class="px-2.5 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] text-slate-400 hover:text-slate-200 border border-white/5 whitespace-nowrap transition cursor-pointer">+ Anime</button>
+          <!-- Modèle IA Minimaliste -->
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label for="modelSelect" class="text-xs font-medium text-gray-400">
+                Moteur d'inférence
+              </label>
+              <span class="text-[10px] text-purple-300 font-mono font-medium">0.11 $/sec</span>
+            </div>
+            <div class="relative">
+              <select
+                id="modelSelect"
+                class="w-full appearance-none glass-input text-white text-xs rounded-full px-4 py-3 pr-10 focus:outline-none focus:border-purple-500/40 focus:ring-1 focus:ring-purple-500/30 transition cursor-pointer font-medium"
+              >
+                <option value="kling-3.0" class="bg-[#0e0e12] text-white">Kling 3.0 (Réalisme & Mouvements)</option>
+                <option value="minimax-h3" class="bg-[#0e0e12] text-white">MiniMax H3 (Cinématique 2K)</option>
+                <option value="cartoon" class="bg-[#0e0e12] text-white">Genjutsu / Toon (Animation Stylisée)</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400 text-xs">
+                <i class="fa-solid fa-chevron-down"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload de référence (Drag & Drop discret) -->
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-medium text-gray-400 flex items-center gap-1.5">
+                <span>Image / Vidéo de référence</span>
+                <span class="text-[10px] text-gray-500">(optionnel)</span>
+              </label>
+              <button
+                type="button"
+                id="removeImgBtn"
+                onclick="clearReferenceImage()"
+                class="hidden text-[10px] text-rose-400 hover:text-rose-300 transition font-medium flex items-center gap-1 cursor-pointer"
+              >
+                <i class="fa-solid fa-xmark"></i> Retirer
+              </button>
+            </div>
+
+            <div
+              id="dropZoneContainer"
+              class="glass-input rounded-2xl p-4 border border-dashed border-white/10 hover:border-purple-500/40 transition cursor-pointer relative group text-center"
+              onclick="document.getElementById('reference-image').click()"
+            >
+              <input
+                type="file"
+                id="reference-image"
+                accept="image/png, image/jpeg, image/webp"
+                class="hidden"
+                onchange="handleReferenceImageSelect(event)"
+              />
+
+              <!-- État Vide -->
+              <div id="uploadPlaceholder" class="flex flex-col items-center justify-center gap-1.5 py-1">
+                <div class="w-8 h-8 rounded-full bg-white/[0.03] group-hover:bg-purple-500/10 text-gray-400 group-hover:text-purple-300 transition flex items-center justify-center">
+                  <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                </div>
+                <p class="text-xs text-gray-300 font-medium">Upload image/vidéo (MP4, JPG)</p>
+                <p class="text-[10px] text-gray-500 font-light">Image-to-Video hébergé sur ImgBB</p>
+              </div>
+
+              <!-- Aperçu Miniature -->
+              <div id="uploadPreview" class="hidden flex items-center justify-between gap-3 text-left">
+                <div class="flex items-center gap-3 min-w-0">
+                  <img id="refThumbnail" src="" alt="Aperçu" class="w-10 h-10 rounded-xl object-cover border border-white/10 shadow-md flex-shrink-0" />
+                  <div class="min-w-0">
+                    <p id="refFilename" class="text-xs text-white font-medium truncate max-w-[170px]">image.jpg</p>
+                    <p id="refFilesize" class="text-[10px] text-purple-300 font-mono">0 KB</p>
+                  </div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  Prête
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estimation tarifaire -->
+          <div class="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.04] flex items-center justify-between text-xs">
+            <span class="text-gray-400">Coût estimé / clip 5s :</span>
+            <span id="estimatedCostText" class="font-montserrat font-semibold text-white tracking-wide">0.55 $</span>
+          </div>
+
+        </div>
+
+        <!-- Bouton Principal Ancré : Blanc pur, texte noir, rounded-full, lueur glow -->
+        <div class="pt-4">
+          <button
+            type="button"
+            id="generateBtn"
+            onclick="startGeneration()"
+            class="w-full py-4 px-6 rounded-full bg-white text-black font-montserrat font-bold text-xs uppercase tracking-wider btn-cta-glow flex items-center justify-center gap-2 cursor-pointer transition disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <i class="fa-solid fa-wand-magic-sparkles text-sm text-purple-600"></i>
+            <span>Générer la scène</span>
+          </button>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ----------------------------------------------------------------------- -->
+    <!-- CANVAS PRINCIPAL (Au centre / droite) -->
+    <!-- ----------------------------------------------------------------------- -->
+    <section class="flex-1 flex flex-col gap-6 min-w-0">
+
+      <!-- ZONE DE PROMPT : Grand champ sans bordures visibles, fondu dans la carte -->
+      <div class="glass-panel rounded-3xl p-6 border border-white/[0.05] shadow-2xl relative">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between text-xs text-gray-400">
+            <span class="font-montserrat font-semibold uppercase tracking-wider text-[11px] text-gray-300 flex items-center gap-2">
+              <i class="fa-solid fa-pen-nib text-purple-400 text-xs"></i>
+              Prompt Créatif
+            </span>
+            <span id="charCount" class="font-mono text-[10px] text-gray-500">0 / 1000</span>
+          </div>
+
+          <!-- Champ de texte sans bordure visible -->
+          <textarea
+            id="promptInput"
+            rows="3"
+            placeholder="Décrivez votre scène ou mouvement de caméra en détail..."
+            class="w-full bg-transparent text-white placeholder-gray-500 text-sm sm:text-base leading-relaxed border-none outline-none resize-none focus:ring-0 focus:outline-none"
+          ></textarea>
+
+          <!-- Badges de styles rapides "rounded-full" cliquables -->
+          <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-white/[0.04]">
+            <span class="text-[10px] text-gray-500 font-medium mr-1 uppercase tracking-wider">Styles rapides :</span>
+            
+            <button type="button" onclick="appendPromptTag('Photoréaliste 8k')" class="glass-pill px-3 py-1 rounded-full text-[11px] text-gray-300 transition">
+              + Photoréaliste
+            </button>
+            <button type="button" onclick="appendPromptTag('Éclairage cinématique dramatique, lentille 35mm')" class="glass-pill px-3 py-1 rounded-full text-[11px] text-gray-300 transition">
+              + Cinématique
+            </button>
+            <button type="button" onclick="appendPromptTag('Travelling dynamique en FPV drone haute vitesse')" class="glass-pill px-3 py-1 rounded-full text-[11px] text-gray-300 transition">
+              + FPV Drone
+            </button>
+            <button type="button" onclick="appendPromptTag('HDR, contraste élevé, couleurs saturées')" class="glass-pill px-3 py-1 rounded-full text-[11px] text-gray-300 transition">
+              + 4K HDR
+            </button>
+            <button type="button" onclick="appendPromptTag('Animation stylisée 3D Pixar, éclairage doux')" class="glass-pill px-3 py-1 rounded-full text-[11px] text-gray-300 transition">
+              + 3D Animation
+            </button>
+            <button type="button" onclick="appendPromptTag('Cyberpunk néons fluorescents sous pluie battante')" class="glass-pill px-3 py-1 rounded-full text-[11px] text-gray-300 transition">
+              + Cyberpunk
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- L'APERÇU (VIEWER) : Format 16:9 Adaptatif avec Fond Noir Pur -->
+      <div class="glass-panel rounded-3xl p-6 border border-white/[0.05] shadow-2xl flex-1 flex flex-col justify-between min-h-[460px]">
+
+        <!-- En-tête de Canvas -->
+        <div class="flex items-center justify-between pb-3 border-b border-white/[0.04]">
+          <div class="flex items-center gap-2.5">
+            <div id="viewerStatusDot" class="w-2 h-2 rounded-full bg-gray-600"></div>
+            <span id="viewerStatusText" class="text-xs font-montserrat font-semibold uppercase tracking-wider text-gray-400">
+              Aperçu Canvas
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="badgeActiveRatio" class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/5 text-gray-400">
+              16:9
+            </span>
+            <span id="badgeActiveModel" class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/5 text-purple-300">
+              Kling 3.0
+            </span>
           </div>
         </div>
 
-        <!-- L'APERÇU (VIEWER) : Grand cadre 16:9 avec fond gris foncé et reflets -->
-        <div class="glass-panel rounded-3xl p-4 sm:p-6 shadow-2xl relative flex flex-col gap-4">
-          
-          <!-- Barre d'état supérieure du Viewer -->
-          <div class="flex items-center justify-between px-1">
-            <div class="flex items-center gap-2.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-slate-600" id="viewerStatusDot"></span>
-              <span id="viewerStatusText" class="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Aperçu Canvas
-              </span>
-            </div>
-            
-            <div id="activeSettingsBadge" class="flex items-center gap-2 text-[11px] font-mono text-slate-400">
-              <span class="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/5">Ratio: 16:9</span>
-              <span class="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/5">Kling 3.0</span>
-            </div>
-          </div>
-
-          <!-- CADRE 16:9 PRINCIPAL (Aspect-Video) -->
+        <!-- ZONE CENTRALE : LE CANVAS MULTI-ÉTATS -->
+        <div class="my-auto py-4 flex items-center justify-center">
           <div
             id="viewerContainer"
-            class="relative w-full aspect-video rounded-2xl bg-[#0a0e17] border border-white/[0.08] overflow-hidden flex items-center justify-center shadow-2xl group"
+            class="relative w-full max-w-4xl mx-auto aspect-video rounded-2xl bg-black border border-white/[0.06] overflow-hidden flex items-center justify-center shadow-2xl transition-all duration-500"
           >
-            <!-- Reflet subtil en coin de cadre (Glass reflection) -->
-            <div class="absolute inset-0 bg-gradient-to-tr from-white/[0.01] via-transparent to-white/[0.04] pointer-events-none"></div>
-
-            <!-- ========================================== -->
-            <!-- ÉTAT 1 : VIDE (Placeholder initial) -->
-            <!-- ========================================== -->
-            <div id="stateEmpty" class="flex flex-col items-center justify-center text-center p-6 max-w-md z-10">
-              <div class="relative mb-4">
-                <div class="w-20 h-20 rounded-3xl bg-white/[0.03] border border-white/10 flex items-center justify-center shadow-inner">
-                  <i class="fa-solid fa-clapperboard text-3xl text-purple-400/70"></i>
-                </div>
-                <div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-purple-600/30 border border-purple-500/40 flex items-center justify-center">
-                  <i class="fa-solid fa-sparkles text-xs text-purple-300"></i>
-                </div>
+            <!-- -------------------------------------------------------- -->
+            <!-- ÉTAT 1 : VIDE (Attente de création avec logo discret) -->
+            <!-- -------------------------------------------------------- -->
+            <div id="stateEmpty" class="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+              <div class="w-16 h-16 rounded-full bg-white/[0.02] border border-white/[0.06] flex items-center justify-center mb-4 text-gray-600">
+                <i class="fa-solid fa-clapperboard text-2xl text-purple-400/60"></i>
               </div>
-              <h3 class="text-base font-bold text-slate-200 mb-1.5">
+              <h3 class="text-sm sm:text-base font-montserrat font-semibold text-gray-300 tracking-tight mb-1">
                 Votre création apparaîtra ici
               </h3>
-              <p class="text-xs text-slate-400 leading-relaxed max-w-sm">
-                Sélectionnez vos options dans le panneau de gauche, écrivez votre prompt et lancez la génération pour créer votre scène.
+              <p class="text-xs text-gray-500 max-w-sm font-light">
+                Tapez votre description ci-dessus ou choisissez une image de référence pour générer votre vidéo IA haute définition.
               </p>
             </div>
 
-            <!-- ========================================== -->
-            <!-- ÉTAT 2 : CHARGEMENT (Loader animé & étapes) -->
-            <!-- ========================================== -->
-            <div id="stateLoading" class="hidden absolute inset-0 bg-[#070a12]/95 backdrop-blur-md flex flex-col justify-between p-6 sm:p-8 z-20">
-              
-              <!-- Effet Shimmer de fond -->
-              <div class="absolute inset-0 shimmer-bg opacity-30 pointer-events-none"></div>
+            <!-- -------------------------------------------------------- -->
+            <!-- ÉTAT 2 : CHARGEMENT (Loader discret avec étapes) -->
+            <!-- -------------------------------------------------------- -->
+            <div id="stateLoading" class="hidden absolute inset-0 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-8 z-20">
+              <div class="w-full max-w-md space-y-6 text-center">
+                <!-- Cercle d'animation néon -->
+                <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
+                  <div class="absolute inset-0 rounded-full border-2 border-white/10"></div>
+                  <div class="absolute inset-0 rounded-full border-2 border-t-purple-500 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+                  <i class="fa-solid fa-sparkles text-purple-400 text-sm"></i>
+                </div>
 
-              <!-- En-tête du Loader -->
-              <div class="flex items-center justify-between z-10">
-                <div class="flex items-center gap-2">
-                  <span class="flex h-2.5 w-2.5 relative">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
+                <!-- Textes d'étapes -->
+                <div class="space-y-1.5">
+                  <span id="loadingPhaseLabel" class="text-[9px] font-mono px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase tracking-widest">
+                    Génération IA
                   </span>
-                  <span class="text-xs font-semibold text-purple-300 tracking-wide uppercase">Calcul Neural Studio</span>
-                </div>
-                <span id="loadingTimeRemaining" class="text-xs font-mono text-slate-400">~ 4s</span>
-              </div>
-
-              <!-- Centre : Spinner esthétique et textes dynamiques -->
-              <div class="flex flex-col items-center justify-center gap-4 z-10 my-auto text-center">
-                <!-- Spinner futuriste à double cercle -->
-                <div class="relative w-20 h-20 flex items-center justify-center">
-                  <div class="absolute inset-0 rounded-full border-2 border-purple-500/20 border-t-purple-500 border-r-cyan-400 animate-spin"></div>
-                  <div class="absolute inset-2 rounded-full border-2 border-dashed border-indigo-400/30 animate-spin-slow"></div>
-                  <i class="fa-solid fa-atom text-purple-300 text-xl animate-pulse"></i>
-                </div>
-
-                <div class="space-y-1 max-w-sm">
-                  <h4 id="loadingStepTitle" class="text-sm sm:text-base font-bold text-white tracking-tight transition-all duration-300">
-                    Création de la scène...
+                  <h4 id="loadingStepTitle" class="text-sm font-montserrat font-semibold text-white">
+                    Initialisation du rendu...
                   </h4>
-                  <p id="loadingStepSubtitle" class="text-xs text-slate-400 font-normal">
-                    Initialisation des tenseurs de diffusion vidéo
+                  <p id="loadingStepSubtitle" class="text-xs text-gray-400 font-light">
+                    Interprétation des tenseurs et cadrage de scène
                   </p>
                 </div>
-              </div>
 
-              <!-- Bas : Barre de progression animée & % -->
-              <div class="space-y-2 z-10 w-full max-w-xl mx-auto">
-                <div class="flex justify-between text-xs font-mono">
-                  <span id="loadingPhaseLabel" class="text-slate-400">Synthèse d'images</span>
-                  <span id="loadingPercentage" class="text-purple-300 font-bold">0%</span>
-                </div>
-                <div class="h-2 w-full bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/10">
-                  <div id="loaderProgressBar" class="h-full bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-400 rounded-full transition-all duration-300" style="width: 0%;"></div>
+                <!-- Barre de progression discrète -->
+                <div class="space-y-2">
+                  <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div id="loaderProgressBar" class="h-full bg-gradient-to-r from-purple-500 to-white w-[5%] transition-all duration-300 rounded-full"></div>
+                  </div>
+                  <div class="flex justify-between items-center text-[10px] font-mono text-gray-400">
+                    <span>Avancement</span>
+                    <span id="loadingPercentage">5%</span>
+                  </div>
                 </div>
               </div>
-
             </div>
 
-            <!-- ========================================== -->
-            <!-- ÉTAT 3 : RÉSULTAT (Lecteur Vidéo Intégré) -->
-            <!-- ========================================== -->
-            <div id="stateResult" class="hidden absolute inset-0 z-30 bg-black flex items-center justify-center">
-              
-              <!-- Balise vidéo -->
+            <!-- -------------------------------------------------------- -->
+            <!-- ÉTAT 3 : RÉSULTAT (Lecteur Vidéo Réel) -->
+            <!-- -------------------------------------------------------- -->
+            <div id="stateResult" class="hidden absolute inset-0 bg-black flex items-center justify-center z-30">
               <video
                 id="finalVideoPlayer"
-                class="w-full h-full object-cover"
+                class="w-full h-full object-cover rounded-2xl"
                 loop
                 playsinline
-                muted
                 controls
+                muted
               >
                 Votre navigateur ne prend pas en charge la lecture vidéo.
               </video>
-
-              <!-- Badges d'information sur la vidéo -->
-              <div class="absolute top-4 left-4 flex items-center gap-2 z-40 pointer-events-none">
-                <span id="resultBadgeModel" class="glass-badge px-3 py-1 rounded-full text-xs font-semibold text-white border border-white/20 shadow-lg">
-                  Kling 3.0 • 16:9
-                </span>
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 uppercase tracking-wider backdrop-blur-md">
-                  Rendu Terminé
-                </span>
-              </div>
-
-              <!-- Overlay des contrôles vidéo personnalisés -->
-              <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4 sm:p-5 z-40 pointer-events-none">
-                
-                <div><!-- Espace haut --></div>
-
-                <!-- Bouton Play/Pause central -->
-                <div class="my-auto flex justify-center pointer-events-auto">
-                  <button
-                    type="button"
-                    onclick="toggleVideoPlayback()"
-                    id="videoCenterPlayBtn"
-                    class="w-16 h-16 rounded-full bg-purple-600/90 hover:bg-purple-500 text-white backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl transform transition hover:scale-110 active:scale-95 cursor-pointer"
-                  >
-                    <i id="centerPlayIcon" class="fa-solid fa-play text-xl ml-1"></i>
-                  </button>
-                </div>
-
-                <!-- Barre d'outils inférieure -->
-                <div class="space-y-2 pointer-events-auto">
-                  <!-- Barre de progression de la vidéo -->
-                  <div class="relative flex items-center cursor-pointer h-2 group/scrubber" onclick="seekVideo(event)">
-                    <div class="w-full h-1.5 bg-white/25 rounded-full overflow-hidden">
-                      <div id="videoTimelineBar" class="h-full bg-gradient-to-r from-purple-500 to-cyan-400 rounded-full" style="width: 0%;"></div>
-                    </div>
-                  </div>
-
-                  <!-- Contrôles et boutons -->
-                  <div class="flex items-center justify-between text-xs text-white pt-1">
-                    <div class="flex items-center gap-3">
-                      <button type="button" onclick="toggleVideoPlayback()" class="hover:text-purple-400 transition cursor-pointer">
-                        <i id="bottomPlayIcon" class="fa-solid fa-play text-sm"></i>
-                      </button>
-                      <button type="button" onclick="toggleMuteVideo()" class="hover:text-purple-400 transition cursor-pointer">
-                        <i id="bottomVolumeIcon" class="fa-solid fa-volume-high text-sm"></i>
-                      </button>
-                      <span id="videoTimecode" class="text-[11px] font-mono text-slate-300">00:00 / 00:15</span>
-                    </div>
-
-                    <div class="flex items-center gap-3">
-                      <button type="button" onclick="restartVideo()" title="Recommencer" class="hover:text-purple-400 transition cursor-pointer">
-                        <i class="fa-solid fa-rotate-left text-sm"></i>
-                      </button>
-                      <button type="button" onclick="toggleFullScreenVideo()" title="Plein écran" class="hover:text-purple-400 transition cursor-pointer">
-                        <i class="fa-solid fa-expand text-sm"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
             </div>
 
           </div>
-
-          <!-- Barre d'actions post-rendu (visible quand le résultat est prêt) -->
-          <div id="postResultBar" class="hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
-            <div class="min-w-0">
-              <p id="resultPromptEcho" class="text-xs text-slate-300 truncate max-w-lg italic font-light">
-                Prompt : « ... »
-              </p>
-              <p class="text-[11px] text-slate-500 mt-0.5">
-                Débité : <span class="font-mono text-emerald-400 font-semibold">1.12 $</span> • Format : <span id="echoFormat">16:9</span>
-              </p>
-            </div>
-            
-            <div class="flex items-center gap-2.5 w-full sm:w-auto">
-              <a
-                id="downloadBtn"
-                href="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
-                download="studio-creation.mp4"
-                target="_blank"
-                class="flex-1 sm:flex-none px-5 py-2.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-white border border-white/10 transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <i class="fa-solid fa-download text-purple-400"></i>
-                <span>Télécharger</span>
-              </a>
-              <button
-                type="button"
-                onclick="resetCanvasToEmpty()"
-                class="flex-1 sm:flex-none px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-xs font-semibold text-white shadow-lg shadow-purple-950/40 transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <i class="fa-solid fa-plus text-xs"></i>
-                <span>Nouvelle scène</span>
-              </button>
-            </div>
-          </div>
-
         </div>
 
-      </section>
+        <!-- BARRE D'ACTIONS POST-RENDU (affichée quand la vidéo est prête) -->
+        <div id="postResultBar" class="hidden pt-4 border-t border-white/[0.04] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="min-w-0 text-left">
+            <p id="resultPromptEcho" class="text-xs text-gray-300 truncate max-w-md font-light italic">
+              Prompt : « ... »
+            </p>
+            <p class="text-[11px] text-gray-500 mt-0.5">
+              Coût déduit : <span id="debitedCostEcho" class="font-mono text-purple-300 font-medium">0.55 $</span> • Moteur : <span id="modelEcho">Kling 3.0</span>
+            </p>
+          </div>
 
-    </div>
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <a
+              id="downloadBtn"
+              href="#"
+              download="studio-creation.mp4"
+              target="_blank"
+              class="px-5 py-2.5 rounded-full bg-white text-black font-montserrat font-bold text-xs uppercase tracking-wider hover:bg-gray-100 transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
+            >
+              <i class="fa-solid fa-download text-xs text-purple-600"></i>
+              <span>Télécharger</span>
+            </a>
+            <button
+              type="button"
+              onclick="resetCanvasToEmpty()"
+              class="px-5 py-2.5 rounded-full glass-panel hover:bg-white/[0.08] text-xs font-medium text-gray-300 transition flex items-center justify-center gap-2 cursor-pointer border border-white/10"
+            >
+              <i class="fa-solid fa-plus text-xs"></i>
+              <span>Nouvelle scène</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
   </main>
 
-  <!-- PIED DE PAGE ÉPURÉ -->
-  <footer class="border-t border-white/[0.06] py-5 mt-auto text-center text-xs text-slate-500">
-    <div class="max-w-[1600px] mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <p>Studio Créatif Pro • Plateforme de Génération IA de Haute Précision</p>
-      <p class="text-slate-600 font-mono text-[11px]">Interface Tailwind CSS • Moteur Asynchrone</p>
-    </div>
-  </footer>
-
   <!-- ========================================================================= -->
-  <!-- 4. JAVASCRIPT : LOGIQUE APPLICATIVE & SIMULATION ASYNCHRONE -->
+  <!-- 3. LOGIQUE JAVASCRIPT CONNECTÉE AUX ENGINS BACKEND -->
   <!-- ========================================================================= -->
   <script>
-    /**
-     * STUDIO CRÉATIF PRO - Logique d'interface & simulation asynchrone
-     * Conçu pour être directement couplé à votre endpoint Vercel (/api/generate)
-     */
-
     // --- VARIABLES D'ÉTAT & CONFIGURATION ---
+    const IMGBB_API_KEY = 'da18a6af70a143a0949712aeae32fb8a';
+
     function getOrCreateUserId() {
       let uid = localStorage.getItem('studio_user_id');
       if (!uid) {
@@ -683,11 +558,42 @@
 
     const currentUserId = getOrCreateUserId();
     let currentBalance = 10.00;
-    let currentRenderType = 'video';     // 'video' | 'image' | 'animation'
-    let currentAspectRatio = '16:9';     // '16:9' | '9:16' | '1:1'
-    let currentModel = 'kling-3.0';      // ID du modèle sélectionné
+    let currentRenderType = 'video';
+    let currentAspectRatio = '16:9';
+    let currentModel = 'kling-3.0';
 
-    // Synchronisation du solde réel depuis Firestore
+    // Éléments du DOM
+    const balanceDisplay = document.getElementById('balanceDisplay');
+    const promptInput = document.getElementById('promptInput');
+    const charCount = document.getElementById('charCount');
+    const modelSelect = document.getElementById('modelSelect');
+    const generateBtn = document.getElementById('generateBtn');
+    const estimatedCostText = document.getElementById('estimatedCostText');
+
+    const viewerContainer = document.getElementById('viewerContainer');
+    const viewerStatusDot = document.getElementById('viewerStatusDot');
+    const viewerStatusText = document.getElementById('viewerStatusText');
+    const badgeActiveRatio = document.getElementById('badgeActiveRatio');
+    const badgeActiveModel = document.getElementById('badgeActiveModel');
+
+    const stateEmpty = document.getElementById('stateEmpty');
+    const stateLoading = document.getElementById('stateLoading');
+    const stateResult = document.getElementById('stateResult');
+    const postResultBar = document.getElementById('postResultBar');
+
+    const loaderProgressBar = document.getElementById('loaderProgressBar');
+    const loadingPercentage = document.getElementById('loadingPercentage');
+    const loadingStepTitle = document.getElementById('loadingStepTitle');
+    const loadingStepSubtitle = document.getElementById('loadingStepSubtitle');
+    const loadingPhaseLabel = document.getElementById('loadingPhaseLabel');
+
+    const finalVideoPlayer = document.getElementById('finalVideoPlayer');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const resultPromptEcho = document.getElementById('resultPromptEcho');
+    const debitedCostEcho = document.getElementById('debitedCostEcho');
+    const modelEcho = document.getElementById('modelEcho');
+
+    // Synchronisation du solde réel Firestore
     async function syncUserBalance() {
       try {
         const res = await fetch(`/api/user?id=${encodeURIComponent(currentUserId)}`);
@@ -699,110 +605,74 @@
           }
         }
       } catch (e) {
-        console.warn('Mode hors-ligne ou synchronisation solde en attente:', e.message);
+        console.warn('Mode hors-ligne ou attente serveur:', e.message);
       }
     }
     syncUserBalance();
 
-    // Éléments du DOM - Contrôles
-    const balanceDisplay = document.getElementById('balanceDisplay');
-    const promptInput = document.getElementById('promptInput');
-    const charCount = document.getElementById('charCount');
-    const modelSelect = document.getElementById('modelSelect');
-    const generateBtn = document.getElementById('generateBtn');
-
-    // Éléments du DOM - Aperçu Canvas & États
-    const viewerStatusDot = document.getElementById('viewerStatusDot');
-    const viewerStatusText = document.getElementById('viewerStatusText');
-    const activeSettingsBadge = document.getElementById('activeSettingsBadge');
-    const viewerContainer = document.getElementById('viewerContainer');
-
-    const stateEmpty = document.getElementById('stateEmpty');
-    const stateLoading = document.getElementById('stateLoading');
-    const stateResult = document.getElementById('stateResult');
-    const postResultBar = document.getElementById('postResultBar');
-
-    // Éléments du Loader
-    const loadingStepTitle = document.getElementById('loadingStepTitle');
-    const loadingStepSubtitle = document.getElementById('loadingStepSubtitle');
-    const loadingPercentage = document.getElementById('loadingPercentage');
-    const loaderProgressBar = document.getElementById('loaderProgressBar');
-    const loadingPhaseLabel = document.getElementById('loadingPhaseLabel');
-
-    // Éléments du Lecteur Vidéo
-    const finalVideoPlayer = document.getElementById('finalVideoPlayer');
-    const videoTimelineBar = document.getElementById('videoTimelineBar');
-    const videoTimecode = document.getElementById('videoTimecode');
-    const centerPlayIcon = document.getElementById('centerPlayIcon');
-    const bottomPlayIcon = document.getElementById('bottomPlayIcon');
-    const bottomVolumeIcon = document.getElementById('bottomVolumeIcon');
-    const resultBadgeModel = document.getElementById('resultBadgeModel');
-    const resultPromptEcho = document.getElementById('resultPromptEcho');
-    const echoFormat = document.getElementById('echoFormat');
-
-    // --- GESTION DES OPTIONS DU PANNEAU LATÉRAL ---
-
-    // Sélection du Type de rendu (Tags cliquables)
+    // Gestion du type de rendu (Vidéo / Image / Animation)
     function selectRenderType(type) {
       currentRenderType = type;
-      document.querySelectorAll('.type-btn').forEach(btn => {
-        const isSelected = btn.getAttribute('data-type') === type;
-        if (isSelected) {
-          btn.className = "type-btn active flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-2xl border text-xs font-medium transition-all duration-200 cursor-pointer bg-gradient-to-b from-purple-500/20 to-indigo-500/10 border-purple-500/50 text-white shadow-lg shadow-purple-950/40";
-          btn.querySelector('i').className = btn.querySelector('i').className.replace('text-slate-400', 'text-purple-400');
-        } else {
-          btn.className = "type-btn flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-2xl border text-xs font-medium transition-all duration-200 cursor-pointer bg-white/[0.03] border-white/[0.06] text-slate-400 hover:text-slate-200 hover:bg-white/[0.06]";
-          btn.querySelector('i').className = btn.querySelector('i').className.replace('text-purple-400', 'text-slate-400');
-        }
+      document.querySelectorAll('.render-type-btn').forEach(btn => {
+        btn.className = 'render-type-btn py-2 px-3 rounded-full text-xs font-medium transition-all text-gray-400 hover:text-white';
       });
-      updateViewerBadges();
+
+      const activeBtnId = type === 'video' ? 'btnTypeVideo' : (type === 'image' ? 'btnTypeImage' : 'btnTypeAnim');
+      const activeBtn = document.getElementById(activeBtnId);
+      if (activeBtn) {
+        activeBtn.className = 'render-type-btn py-2 px-3 rounded-full text-xs font-medium transition-all text-white bg-white/10 border border-white/10 shadow-sm';
+      }
+      updateEstimatedCost();
     }
 
-    // Sélection du Format / Ratio (Grille de boutons)
+    // Gestion du Ratio d'aspect (16:9 / 9:16 / 1:1)
     function selectAspectRatio(ratio) {
       currentAspectRatio = ratio;
+      badgeActiveRatio.textContent = ratio;
+
       document.querySelectorAll('.ratio-btn').forEach(btn => {
-        const isSelected = btn.getAttribute('data-ratio') === ratio;
-        if (isSelected) {
-          btn.className = "ratio-btn active flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-medium transition-all duration-200 cursor-pointer bg-gradient-to-b from-purple-500/20 to-indigo-500/10 border-purple-500/50 text-white shadow-lg shadow-purple-950/40";
-        } else {
-          btn.className = "ratio-btn flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border text-xs font-medium transition-all duration-200 cursor-pointer bg-white/[0.03] border-white/[0.06] text-slate-400 hover:text-slate-200 hover:bg-white/[0.06]";
-        }
+        btn.className = 'ratio-btn py-2.5 px-3 rounded-full text-xs font-medium transition-all text-gray-400 hover:text-white border border-white/[0.04] bg-white/[0.02] flex items-center justify-center gap-1.5';
       });
 
-      // Adaptation visuelle du conteneur selon le ratio choisi
-      if (ratio === '9:16') {
-        viewerContainer.className = "relative w-full max-w-sm mx-auto aspect-[9/16] rounded-2xl bg-[#0a0e17] border border-white/[0.08] overflow-hidden flex items-center justify-center shadow-2xl group transition-all duration-500";
-      } else if (ratio === '1:1') {
-        viewerContainer.className = "relative w-full max-w-lg mx-auto aspect-square rounded-2xl bg-[#0a0e17] border border-white/[0.08] overflow-hidden flex items-center justify-center shadow-2xl group transition-all duration-500";
-      } else {
-        viewerContainer.className = "relative w-full aspect-video rounded-2xl bg-[#0a0e17] border border-white/[0.08] overflow-hidden flex items-center justify-center shadow-2xl group transition-all duration-500";
+      const activeBtnId = ratio === '16:9' ? 'btnRatio169' : (ratio === '9:16' ? 'btnRatio916' : 'btnRatio11');
+      const activeBtn = document.getElementById(activeBtnId);
+      if (activeBtn) {
+        activeBtn.className = 'ratio-btn py-2.5 px-3 rounded-full text-xs font-medium transition-all text-white bg-white/10 border border-white/10 flex items-center justify-center gap-1.5 shadow-sm';
       }
 
-      updateViewerBadges();
+      // Adaptation visuelle du Canvas selon le ratio
+      if (ratio === '9:16') {
+        viewerContainer.className = "relative w-full max-w-sm mx-auto aspect-[9/16] rounded-2xl bg-black border border-white/[0.06] overflow-hidden flex items-center justify-center shadow-2xl transition-all duration-500";
+      } else if (ratio === '1:1') {
+        viewerContainer.className = "relative w-full max-w-md mx-auto aspect-square rounded-2xl bg-black border border-white/[0.06] overflow-hidden flex items-center justify-center shadow-2xl transition-all duration-500";
+      } else {
+        viewerContainer.className = "relative w-full max-w-4xl mx-auto aspect-video rounded-2xl bg-black border border-white/[0.06] overflow-hidden flex items-center justify-center shadow-2xl transition-all duration-500";
+      }
     }
 
-    // Mise à jour du Modèle
+    // Changement du modèle IA
     modelSelect.addEventListener('change', (e) => {
       currentModel = e.target.value;
-      updateViewerBadges();
+      const modelLabel = modelSelect.options[modelSelect.selectedIndex].text.split(' (')[0];
+      badgeActiveModel.textContent = modelLabel;
+      updateEstimatedCost();
     });
 
-    function updateViewerBadges() {
-      const selectedModelName = modelSelect.options[modelSelect.selectedIndex].text.split(' (')[0];
-      activeSettingsBadge.innerHTML = `
-        <span class="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/5 capitalize">${currentRenderType}</span>
-        <span class="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/5">Ratio: ${currentAspectRatio}</span>
-        <span class="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/5">${selectedModelName}</span>
-      `;
+    function updateEstimatedCost() {
+      if (currentRenderType === 'image') {
+        estimatedCostText.textContent = "0.05 $";
+      } else if (currentModel.includes('minimax')) {
+        estimatedCostText.textContent = "0.65 $";
+      } else {
+        estimatedCostText.textContent = "0.55 $";
+      }
     }
 
-    // Compteur de caractères en direct
+    // Gestion du champ de texte & Tags rapides
     promptInput.addEventListener('input', () => {
       charCount.textContent = `${promptInput.value.length} / 1000`;
     });
 
-    // Suggestions & Tags rapides
     function appendPromptTag(tag) {
       if (!promptInput.value.trim()) {
         promptInput.value = tag;
@@ -813,41 +683,7 @@
       promptInput.focus();
     }
 
-    function insertRandomPrompt() {
-      const ideas = [
-        "Un plan drone cinématique survolant une cité néo-Tokyo sous une pluie battante, reflets de néons cyberpunks, travelling avant lent, 4K photoréaliste.",
-        "Un gros plan d'un automate steampunk réparant délicatement une montre à gousset, particules de poussière dorée en suspension dans la lumière.",
-        "Une forêt bioluminescente dans le style Avatar avec des cascades flottantes et créatures éthérées, éclairage doux, profondeur de champ cinématographique.",
-        "Un renard arctique aux yeux turquoise courant à travers une tempête de neige boréale, ralenti fluide à 120fps, détails de fourrure ultra-nets."
-      ];
-      const randomIdea = ideas[Math.floor(Math.random() * ideas.length)];
-      promptInput.value = randomIdea;
-      promptInput.dispatchEvent(new Event('input'));
-    }
-
-    function topUpBalance() {
-      currentBalance += 10.00;
-      balanceDisplay.textContent = currentBalance.toFixed(2) + ' $';
-      showToast("Compte rechargé de +10.00 $ !");
-    }
-
-    function showToast(message) {
-      const toast = document.createElement('div');
-      toast.className = 'fixed bottom-6 right-6 z-50 glass-badge px-4 py-2.5 rounded-full text-xs font-semibold text-emerald-300 border border-emerald-500/40 shadow-2xl transition-all duration-300 transform translate-y-4 opacity-0 flex items-center gap-2';
-      toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>${message}</span>`;
-      document.body.appendChild(toast);
-      
-      requestAnimationFrame(() => {
-        toast.classList.remove('translate-y-4', 'opacity-0');
-      });
-
-      setTimeout(() => {
-        toast.classList.add('translate-y-4', 'opacity-0');
-        setTimeout(() => toast.remove(), 350);
-      }, 3000);
-    }
-
-    // --- GESTION DE L'IMAGE DE RÉFÉRENCE (Image-to-Video) ---
+    // Gestion de l'Image de Référence (Image-to-Video)
     function handleReferenceImageSelect(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -886,46 +722,53 @@
       if (removeBtn) removeBtn.classList.add('hidden');
     }
 
-    // --- LOGIQUE PRINCIPALE DE GÉNÉRATION ---
+    // Recharger solde de test
+    function topUpBalance() {
+      currentBalance += 10.00;
+      balanceDisplay.textContent = currentBalance.toFixed(2) + ' $';
+      showToast("Compte crédité de +10.00 $ !");
+    }
 
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-6 right-6 z-50 glass-panel px-4 py-2.5 rounded-full text-xs font-semibold text-purple-300 border border-purple-500/40 shadow-2xl transition-all duration-300 flex items-center gap-2';
+      toast.innerHTML = `<i class="fa-solid fa-sparkles text-purple-400"></i> <span>${message}</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3200);
+    }
+
+    // --- LOGIQUE PRINCIPALE DE GÉNÉRATION CONNECTÉE ---
     let currentPollingInterval = null;
 
     async function startGeneration() {
       const promptValue = promptInput.value.trim();
       const fileInput = document.getElementById('reference-image');
 
-      // 1. Validation du prompt
       if (!promptValue) {
         promptInput.focus();
-        promptInput.parentElement.classList.add('ring-2', 'ring-rose-500/50');
-        setTimeout(() => {
-          promptInput.parentElement.classList.remove('ring-2', 'ring-rose-500/50');
-        }, 1500);
+        showToast("Veuillez saisir une description de votre scène.");
         return;
       }
 
-      // 2. Vérification du solde minimum
       if (currentBalance < 0.20) {
         alert("Solde insuffisant ! Votre solde est de " + currentBalance.toFixed(2) + " $.");
         return;
       }
 
-      // 3. Passage à l'État de chargement
       setUiState('loading');
-      updateProgressDisplay(5, "Initialisation...", "Préparation de la scène...", "Requête");
+      updateProgressDisplay(5, "Préparation de la scène...", "Connexion aux serveurs GPU", "Initialisation");
 
       try {
         let uploadedImageUrl = null;
 
-        // Étape optionnelle : Téléchargement de l'image de référence vers ImgBB si présente
+        // Étape 1 : Upload vers ImgBB si une image de référence est sélectionnée
         if (fileInput && fileInput.files && fileInput.files.length > 0) {
-          updateProgressDisplay(10, "Téléchargement de l'image...", "Hébergement haute résolution sur ImgBB", "Upload");
+          updateProgressDisplay(12, "Hébergement de l'image...", "Téléchargement haute résolution sur ImgBB", "Upload");
 
-          const imgbbKey = window.IMGBB_API_KEY || localStorage.getItem('imgbb_api_key') || 'da18a6af70a143a0949712aeae32fb8a';
           const formData = new FormData();
           formData.append('image', fileInput.files[0]);
 
-          const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${encodeURIComponent(imgbbKey)}`, {
+          const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
             method: 'POST',
             body: formData,
           });
@@ -933,16 +776,16 @@
           const imgbbData = await imgbbResponse.json();
           if (imgbbData && imgbbData.success) {
             uploadedImageUrl = imgbbData.data.url;
-            console.log("Image de référence hébergée avec succès sur ImgBB :", uploadedImageUrl);
+            console.log("Image hébergée avec succès :", uploadedImageUrl);
           } else {
-            const errDetail = imgbbData?.error?.message || "Vérifiez votre clé API ImgBB.";
-            throw new Error(`Échec de l'upload de l'image sur ImgBB (${errDetail})`);
+            const errDetail = imgbbData?.error?.message || "Erreur de clé ImgBB";
+            throw new Error(`Échec de l'upload ImgBB (${errDetail})`);
           }
         }
 
-        updateProgressDisplay(15, "Vérification des crédits et GPU...", "Allocation des serveurs de rendu", "IA");
+        updateProgressDisplay(18, "Lancement du modèle IA...", "Allocation des tenseurs de rendu", "Calcul");
 
-        // 4. Appel de l'endpoint serverless Vercel
+        // Étape 2 : Envoi au backend Vercel
         const res = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -962,7 +805,6 @@
           throw new Error(data.error || data.details || 'Erreur lors du déclenchement de la génération.');
         }
 
-        // Mise à jour du solde retourné
         if (typeof data.newBalance === 'number') {
           currentBalance = data.newBalance;
           balanceDisplay.textContent = currentBalance.toFixed(2) + ' $';
@@ -970,11 +812,11 @@
 
         showToast(`Génération initiée (-${data.debitedCost || '0.55'} $)`);
 
-        // 5. Suivi en temps réel jusqu'à finalisation
+        // Étape 3 : Polling actif jusqu'à complétion
         await pollGenerationStatus(data.generationId, promptValue);
 
       } catch (err) {
-        console.error("Erreur de génération:", err);
+        console.error("Erreur de génération :", err);
         alert("Erreur : " + err.message);
         setUiState('empty');
         syncUserBalance();
@@ -989,25 +831,23 @@
       if (phase) loadingPhaseLabel.textContent = phase;
     }
 
-    // Suivi de l'avancement via /api/status
     function pollGenerationStatus(generationId, promptValue) {
       if (currentPollingInterval) clearInterval(currentPollingInterval);
 
       let elapsedSeconds = 0;
-      updateProgressDisplay(15, "Traitement par l'IA...", "Calcul des tenseurs et cadrage de vue", "Génération");
+      updateProgressDisplay(25, "Traitement par l'IA...", "Calcul des mouvements et synthèse des frames", "Génération");
 
       return new Promise((resolve) => {
         currentPollingInterval = setInterval(async () => {
           elapsedSeconds += 3;
 
-          // Progression visuelle progressive
-          let simulatedProgress = Math.min(94, 15 + Math.floor(elapsedSeconds * 1.5));
-          if (simulatedProgress < 40) {
+          let simulatedProgress = Math.min(94, 25 + Math.floor(elapsedSeconds * 1.6));
+          if (simulatedProgress < 45) {
             updateProgressDisplay(simulatedProgress, "Création de la scène IA...", "Interprétation sémantique du prompt", "Élaboration");
           } else if (simulatedProgress < 75) {
-            updateProgressDisplay(simulatedProgress, "Synthèse des frames...", "Calcul du flux optique et des mouvements", "Animation");
+            updateProgressDisplay(simulatedProgress, "Synthèse des frames vidéo...", "Interpolation du flux optique temporel", "Animation");
           } else {
-            updateProgressDisplay(simulatedProgress, "Finalisation du rendu...", "Encodage vidéo et filtres de netteté", "Finalisation");
+            updateProgressDisplay(simulatedProgress, "Finalisation du rendu HD...", "Encodage vidéo et amélioration de la netteté", "Finalisation");
           }
 
           try {
@@ -1017,7 +857,7 @@
 
               if (statusData.status === 'completed' && statusData.videoUrl) {
                 clearInterval(currentPollingInterval);
-                updateProgressDisplay(100, "Rendu terminé !", "Chargement du lecteur", "Terminé");
+                updateProgressDisplay(100, "Rendu terminé !", "Initialisation du lecteur vidéo", "Prêt");
                 setTimeout(() => {
                   showGenerationResult(promptValue, statusData.videoUrl, statusData.cost);
                   resolve(statusData);
@@ -1038,10 +878,9 @@
             console.warn("Erreur polling status:", pollErr);
           }
 
-          // Timeout après 3 minutes (180s)
           if (elapsedSeconds > 180) {
             clearInterval(currentPollingInterval);
-            alert("Le traitement prend plus de temps que prévu. La vidéo sera disponible sous peu.");
+            alert("Le traitement prend plus de temps que prévu. La vidéo sera prête sous peu sur votre compte.");
             setUiState('empty');
             resolve(null);
           }
@@ -1049,44 +888,29 @@
       });
     }
 
-    // Passage à l'État 3 : RÉSULTAT
     function showGenerationResult(promptText, videoUrl, debitedCost) {
       setUiState('result');
 
-      // Mise à jour des informations
       const selectedModelName = modelSelect.options[modelSelect.selectedIndex].text.split(' (')[0];
-      resultBadgeModel.textContent = `${selectedModelName} • ${currentAspectRatio}`;
       resultPromptEcho.textContent = `Prompt : « ${promptText} »`;
-      echoFormat.textContent = currentAspectRatio;
+      debitedCostEcho.textContent = Number(debitedCost || 0.55).toFixed(2) + ' $';
+      modelEcho.textContent = `${selectedModelName} (${currentAspectRatio})`;
 
-      const costEcho = document.querySelector('#postResultBar .font-mono');
-      if (costEcho && debitedCost) {
-        costEcho.textContent = Number(debitedCost).toFixed(2) + ' $';
-      }
-
-      // Mise à jour du lien de téléchargement
-      const downloadBtn = document.getElementById('downloadBtn');
       if (downloadBtn && videoUrl) {
         downloadBtn.href = videoUrl;
-        downloadBtn.target = '_blank';
       }
 
-      // Configuration et lecture de la vidéo
       if (videoUrl) {
         finalVideoPlayer.src = videoUrl;
         finalVideoPlayer.currentTime = 0;
         finalVideoPlayer.load();
 
-        finalVideoPlayer.play().then(() => {
-          updatePlayControlIcons(true);
-        }).catch((err) => {
-          console.warn("Lecture automatique bloquée par le navigateur (cliquez sur Play) :", err);
-          updatePlayControlIcons(false);
+        finalVideoPlayer.play().catch((err) => {
+          console.warn("Autoplay bloqué par le navigateur :", err);
         });
       }
     }
 
-    // Gestion centralisée des états du Canvas (empty | loading | result)
     function setUiState(state) {
       if (state === 'empty') {
         stateEmpty.classList.remove('hidden');
@@ -1094,12 +918,11 @@
         stateResult.classList.add('hidden');
         postResultBar.classList.add('hidden');
 
-        viewerStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-slate-600';
+        viewerStatusDot.className = 'w-2 h-2 rounded-full bg-gray-600';
         viewerStatusText.textContent = 'Aperçu Canvas';
-        viewerStatusText.className = 'text-xs font-semibold uppercase tracking-wider text-slate-400';
+        viewerStatusText.className = 'text-xs font-montserrat font-semibold uppercase tracking-wider text-gray-400';
 
         generateBtn.disabled = false;
-        generateBtn.classList.remove('opacity-50');
 
       } else if (state === 'loading') {
         stateEmpty.classList.add('hidden');
@@ -1107,12 +930,11 @@
         stateResult.classList.add('hidden');
         postResultBar.classList.add('hidden');
 
-        viewerStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-purple-400 animate-ping';
+        viewerStatusDot.className = 'w-2 h-2 rounded-full bg-purple-400 animate-ping';
         viewerStatusText.textContent = 'Génération en cours';
-        viewerStatusText.className = 'text-xs font-semibold uppercase tracking-wider text-purple-300';
+        viewerStatusText.className = 'text-xs font-montserrat font-semibold uppercase tracking-wider text-purple-300';
 
         generateBtn.disabled = true;
-        generateBtn.classList.add('opacity-50');
 
       } else if (state === 'result') {
         stateEmpty.classList.add('hidden');
@@ -1120,12 +942,11 @@
         stateResult.classList.remove('hidden');
         postResultBar.classList.remove('hidden');
 
-        viewerStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+        viewerStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
         viewerStatusText.textContent = 'Rendu Prêt';
-        viewerStatusText.className = 'text-xs font-semibold uppercase tracking-wider text-emerald-400';
+        viewerStatusText.className = 'text-xs font-montserrat font-semibold uppercase tracking-wider text-emerald-400';
 
         generateBtn.disabled = false;
-        generateBtn.classList.remove('opacity-50');
       }
     }
 
@@ -1134,79 +955,7 @@
       setUiState('empty');
       promptInput.focus();
     }
-
-    // --- CONTRÔLES DU LECTEUR VIDÉO ---
-
-    function toggleVideoPlayback() {
-      if (finalVideoPlayer.paused) {
-        finalVideoPlayer.play();
-        updatePlayControlIcons(true);
-      } else {
-        finalVideoPlayer.pause();
-        updatePlayControlIcons(false);
-      }
-    }
-
-    function updatePlayControlIcons(isPlaying) {
-      if (isPlaying) {
-        centerPlayIcon.className = 'fa-solid fa-pause text-xl';
-        bottomPlayIcon.className = 'fa-solid fa-pause text-sm';
-      } else {
-        centerPlayIcon.className = 'fa-solid fa-play text-xl ml-1';
-        bottomPlayIcon.className = 'fa-solid fa-play text-sm';
-      }
-    }
-
-    function toggleMuteVideo() {
-      finalVideoPlayer.muted = !finalVideoPlayer.muted;
-      bottomVolumeIcon.className = finalVideoPlayer.muted ? 'fa-solid fa-volume-xmark text-sm' : 'fa-solid fa-volume-high text-sm';
-    }
-
-    function restartVideo() {
-      finalVideoPlayer.currentTime = 0;
-      finalVideoPlayer.play();
-      updatePlayControlIcons(true);
-    }
-
-    function toggleFullScreenVideo() {
-      if (!document.fullscreenElement) {
-        viewerContainer.requestFullscreen().catch(err => console.error(err));
-      } else {
-        document.exitFullscreen();
-      }
-    }
-
-    function seekVideo(e) {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const pos = (e.clientX - rect.left) / rect.width;
-      if (finalVideoPlayer.duration) {
-        finalVideoPlayer.currentTime = pos * finalVideoPlayer.duration;
-      }
-    }
-
-    // Suivi de la timeline vidéo
-    finalVideoPlayer.addEventListener('timeupdate', () => {
-      if (finalVideoPlayer.duration) {
-        const percent = (finalVideoPlayer.currentTime / finalVideoPlayer.duration) * 100;
-        videoTimelineBar.style.width = `${percent}%`;
-
-        const curMins = Math.floor(finalVideoPlayer.currentTime / 60);
-        const curSecs = Math.floor(finalVideoPlayer.currentTime % 60).toString().padStart(2, '0');
-        const durMins = Math.floor(finalVideoPlayer.duration / 60);
-        const durSecs = Math.floor(finalVideoPlayer.duration % 60).toString().padStart(2, '0');
-        videoTimecode.textContent = `${curMins}:${curSecs} / ${durMins}:${durSecs}`;
-      }
-    });
-
-    finalVideoPlayer.addEventListener('ended', () => {
-      updatePlayControlIcons(false);
-    });
-
-    // Initialisation au chargement
-    document.addEventListener('DOMContentLoaded', () => {
-      updateViewerBadges();
-      setUiState('empty');
-    });
   </script>
+
 </body>
 </html>
