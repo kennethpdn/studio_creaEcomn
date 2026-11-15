@@ -109,6 +109,12 @@ export default async function handler(req, res) {
       first_frame_url: imageUrl || undefined,
       webhook_url: WEBHOOK_URL,
       custom_id: generationRef.id,
+      metadata: {
+        userId: effectiveUserId,
+        prompt: prompt.trim(),
+        model: model,
+        generationId: generationRef.id,
+      },
     };
 
     if (modelKey.includes('minimax')) {
@@ -121,6 +127,12 @@ export default async function handler(req, res) {
         image_url: imageUrl || undefined, // Relai de l'URL de l'image à l'IA
         webhook_url: WEBHOOK_URL,
         custom_id: generationRef.id,
+        metadata: {
+          userId: effectiveUserId,
+          prompt: prompt.trim(),
+          model: model,
+          generationId: generationRef.id,
+        },
       };
     }
 

@@ -1068,117 +1068,69 @@
       promptInput.focus();
     }
 
-    // --- GESTION DU SLIDE-OVER : MES CRÉATIONS ---
-    const DEFAULT_HISTORY = [
-      {
-        id: 'scene-1',
-        prompt: 'Cité néo-Tokyo cyberpunk sous pluie battante et reflets néons holographiques',
-        model: 'Kling 3.0',
-        ratio: '16:9',
-        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-        thumb: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?q=80&w=600&auto=format&fit=crop',
-        date: 'Aujourd\'hui'
-      },
-      {
-        id: 'scene-2',
-        prompt: 'Travelling FPV drone traversant des cascades glaciaires en Islande au coucher de soleil',
-        model: 'MiniMax H3',
-        ratio: '16:9',
-        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-        thumb: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=600&auto=format&fit=crop',
-        date: 'Hier'
-      },
-      {
-        id: 'scene-3',
-        prompt: 'Automate steampunk miniature assemblant une horloge céleste avec étincelles dorées',
-        model: 'Genjutsu',
-        ratio: '1:1',
-        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-        thumb: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=600&auto=format&fit=crop',
-        date: 'Il y a 2j'
-      },
-      {
-        id: 'scene-4',
-        prompt: 'Renard polaire aux yeux turquoise courant dans la toundra boréale en 4K 120fps',
-        model: 'Kling 3.0',
-        ratio: '9:16',
-        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4',
-        thumb: 'https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=600&auto=format&fit=crop',
-        date: 'Il y a 3j'
-      }
-    ];
+    // --- GESTION DU SLIDE-OVER : MES CRÉATIONS & HISTORIQUE FIREBASE ---
 
-    function getStoredHistory() {
+    // À appeler lorsque l'utilisateur clique sur le bouton "Mes Créations"
+    async function chargerHistorique(userId) {
+      const targetUserId = userId || currentUserId;
+      const galerieContainer = document.getElementById('historique-grid');
+      galerieContainer.innerHTML = '<p class="text-gray-400 font-raleway text-sm col-span-2 text-center mt-10"><i class="fa-solid fa-spinner animate-spin text-purple-400 mr-2"></i>Chargement des créations...</p>';
+
       try {
-        const stored = localStorage.getItem('studio_creations_history');
-        if (stored) return JSON.parse(stored);
-      } catch (e) {
-        console.warn('Erreur lecture historique local:', e);
-      }
-      return DEFAULT_HISTORY;
-    }
+        let items = [];
 
-    let creationsHistory = getStoredHistory();
+        // 1. Lecture de Firebase Client si initialisé
+        if (typeof firebase !== 'undefined' && firebase.firestore) {
+          try {
+            const snapshot = await firebase.firestore().collection('users').doc(targetUserId).collection('historique')
+                                     .orderBy('date', 'desc').get();
+            if (!snapshot.empty) {
+              snapshot.forEach(doc => items.push(doc.data()));
+            }
+          } catch (clientErr) {
+            console.warn("Lecture Firebase client direct indisponible, bascule API:", clientErr);
+          }
+        }
 
-    function renderHistoryGrid() {
-      const grid = document.getElementById('historique-grid');
-      const badge = document.getElementById('historyCountBadge');
-      const titleCount = document.getElementById('historyTitleCount');
-      if (!grid) return;
+        // 2. Lecture via l'API Vercel Firebase Admin sécurisée
+        if (items.length === 0) {
+          const res = await fetch(`/api/history?userId=${encodeURIComponent(targetUserId)}`);
+          if (res.ok) {
+            const json = await res.json();
+            items = json.items || [];
+          }
+        }
 
-      if (badge) badge.textContent = creationsHistory.length;
-      if (titleCount) titleCount.textContent = `${creationsHistory.length} scène${creationsHistory.length > 1 ? 's' : ''}`;
+        galerieContainer.innerHTML = '';
 
-      grid.innerHTML = creationsHistory.map((item, index) => `
-        <div
-          onclick="loadHistoryItem(${index})"
-          class="group relative rounded-2xl bg-white/[0.02] border border-white/5 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-950/40 hover:scale-[1.02] transition-all duration-300 overflow-hidden cursor-pointer flex flex-col p-2.5"
-        >
-          <!-- Miniature / Vidéo -->
-          <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black flex items-center justify-center">
-            <img
-              src="${item.thumb || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=600&auto=format&fit=crop'}"
-              alt="Miniature vidéo"
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              loading="lazy"
-            />
-            <!-- Overlay Play au survol -->
-            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-              <div class="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
-                <i class="fa-solid fa-play text-[10px] ml-0.5 text-purple-600"></i>
+        if (items.length === 0) {
+          galerieContainer.innerHTML = '<p class="text-gray-500 font-raleway text-sm col-span-2 text-center mt-10">Votre historique est vide. Lancez votre première génération !</p>';
+          return;
+        }
+
+        // Mise à jour des badges compteurs
+        const badge = document.getElementById('historyCountBadge');
+        const titleCount = document.getElementById('historyTitleCount');
+        if (badge) badge.textContent = items.length;
+        if (titleCount) titleCount.textContent = `${items.length} scène${items.length > 1 ? 's' : ''}`;
+
+        items.forEach(data => {
+          const videoSrc = data.video_url || data.videoUrl;
+          // Création de la carte vidéo au format Glassmorphism
+          const element = `
+            <div onclick="showGenerationResult('${(data.prompt || '').replace(/'/g, "\\'")}', '${videoSrc}', 0.55); toggleHistoryPanel(false);" class="relative group rounded-2xl overflow-hidden border border-white/5 hover:border-purple-500/50 hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] transition-all cursor-pointer">
+              <video src="${videoSrc}" class="w-full h-40 object-cover" loop muted playsinline onmouseover="this.play()" onmouseout="this.pause()"></video>
+              <div class="absolute bottom-0 w-full bg-gradient-to-t from-black via-black/80 to-transparent pt-6 pb-2 px-3">
+                <p class="text-xs text-gray-300 truncate font-raleway">${data.prompt || 'Création visuelle'}</p>
               </div>
             </div>
-            <!-- Badge Modèle -->
-            <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-md text-[9px] font-mono text-purple-300 border border-white/10">
-              ${item.model || 'Kling 3.0'}
-            </span>
-            <span class="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-md text-[9px] font-mono text-gray-300">
-              5s
-            </span>
-          </div>
-
-          <!-- Prompt tronqué sur une ligne en bas (Raleway, text-gray-400, text-xs) -->
-          <div class="pt-2 px-1">
-            <p class="font-raleway text-gray-400 text-xs truncate" title="${item.prompt}">
-              ${item.prompt}
-            </p>
-            <div class="flex items-center justify-between text-[10px] text-gray-500 mt-1 font-mono">
-              <span class="text-gray-500">${item.ratio || '16:9'}</span>
-              <span class="text-purple-400/80">${item.date || 'Récemment'}</span>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function addCreationToHistory(entry) {
-      creationsHistory.unshift(entry);
-      try {
-        localStorage.setItem('studio_creations_history', JSON.stringify(creationsHistory));
-      } catch (e) {
-        console.warn('Erreur stockage création:', e);
+          `;
+          galerieContainer.insertAdjacentHTML('beforeend', element);
+        });
+      } catch (error) {
+        console.error("Erreur lors de la lecture de l'historique :", error);
+        galerieContainer.innerHTML = '<p class="text-red-400 text-sm col-span-2 text-center mt-10">Erreur de connexion.</p>';
       }
-      renderHistoryGrid();
     }
 
     function toggleHistoryPanel(show) {
@@ -1193,7 +1145,8 @@
         backdrop.classList.add('opacity-100', 'pointer-events-auto');
         drawer.classList.remove('translate-x-full');
         drawer.classList.add('translate-x-0');
-        renderHistoryGrid();
+        // Exécution à l'ouverture du panneau
+        chargerHistorique(currentUserId);
       } else {
         drawer.classList.remove('translate-x-0');
         drawer.classList.add('translate-x-full');
@@ -1205,25 +1158,10 @@
       }
     }
 
-    function loadHistoryItem(index) {
-      const item = creationsHistory[index];
-      if (!item) return;
-
-      promptInput.value = item.prompt;
-      promptInput.dispatchEvent(new Event('input'));
-
-      showGenerationResult(item.prompt, item.videoUrl, 0.55);
-      toggleHistoryPanel(false);
-      showToast("Scène chargée depuis l'historique !");
-    }
-
     // Fermeture avec la touche Échap
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') toggleHistoryPanel(false);
     });
-
-    // Initialisation immédiate de la grille d'historique
-    renderHistoryGrid();
   </script>
 
 </body>

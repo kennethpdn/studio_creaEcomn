@@ -58,6 +58,17 @@ export default async function handler(req, res) {
               completedAt: admin.firestore.FieldValue.serverTimestamp(),
               updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
+
+            // Enregistrement dans la sous-collection users/{userId}/historique
+            if (data.userId) {
+              await db.collection('users').doc(data.userId).collection('historique').doc(doc.id).set({
+                video_url: videoUrl,
+                prompt: data.prompt || 'Création visuelle',
+                model: data.model || 'kling_3',
+                date: admin.firestore.FieldValue.serverTimestamp(),
+              }, { merge: true }).catch(err => console.warn('Historique set ignoré:', err.message));
+            }
+
             data.status = 'completed';
             data.videoUrl = videoUrl;
           } else if (hfData.status === 'failed') {
