@@ -139,6 +139,20 @@
 
     <!-- Droite : Badge Solde élégant & Actions -->
     <div class="flex items-center gap-3">
+      <!-- Bouton "Mes Créations" (totalement arrondi rounded-full avec icône de pellicule vidéo) -->
+      <button
+        type="button"
+        id="openHistoryBtn"
+        onclick="toggleHistoryPanel(true)"
+        class="flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel hover:bg-white/[0.08] border border-white/10 hover:border-purple-500/40 text-xs font-medium text-gray-300 hover:text-white transition-all shadow-sm cursor-pointer group"
+      >
+        <i class="fa-solid fa-film text-purple-400 group-hover:rotate-12 transition-transform text-xs"></i>
+        <span>Mes Créations</span>
+        <span id="historyCountBadge" class="ml-0.5 text-[9px] px-1.5 py-0.2 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono">
+          4
+        </span>
+      </button>
+
       <!-- Badge de Solde -->
       <div class="flex items-center gap-2.5 px-4 py-1.5 rounded-full glass-panel border border-white/10 shadow-sm">
         <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
@@ -541,7 +555,94 @@
   </main>
 
   <!-- ========================================================================= -->
-  <!-- 3. LOGIQUE JAVASCRIPT CONNECTÉE AUX ENGINS BACKEND -->
+  <!-- 3. SLIDE-OVER : HISTORIQUE DES CRÉATIONS -->
+  <!-- ========================================================================= -->
+  <div
+    id="historySlideOver"
+    class="fixed inset-0 z-50 pointer-events-none transition-all duration-500"
+    aria-labelledby="slide-over-title"
+    role="dialog"
+    aria-modal="true"
+  >
+    <!-- Arrière-plan sombre translucide flouté (Backdrop) -->
+    <div
+      id="historyBackdrop"
+      onclick="toggleHistoryPanel(false)"
+      class="fixed inset-0 bg-black/75 backdrop-blur-sm opacity-0 transition-opacity duration-500 ease-in-out pointer-events-none cursor-pointer"
+    ></div>
+
+    <!-- Conteneur coulissant ancré à droite -->
+    <div class="fixed inset-y-0 right-0 flex max-w-full pl-6 sm:pl-10 pointer-events-none">
+      <div
+        id="historyDrawer"
+        class="w-screen max-w-md sm:max-w-xl pointer-events-auto transform translate-x-full transition-transform duration-500 ease-in-out bg-[#050505]/90 backdrop-blur-2xl border-l border-white/10 shadow-2xl flex flex-col justify-between"
+      >
+        <!-- En-tête du Slide-over -->
+        <div class="px-6 py-5 border-b border-white/[0.06] flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shadow-sm">
+              <i class="fa-solid fa-film text-sm"></i>
+            </div>
+            <div>
+              <h2 id="slide-over-title" class="text-base font-bold font-montserrat text-white tracking-tight flex items-center gap-2">
+                <span>Mes Créations</span>
+                <span id="historyTitleCount" class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                  4 scènes
+                </span>
+              </h2>
+              <p class="text-[11px] text-gray-400 font-light font-raleway">
+                Galerie de vos vidéos et rendus générés par IA
+              </p>
+            </div>
+          </div>
+
+          <!-- Bouton de fermeture totally rounded-full -->
+          <button
+            type="button"
+            onclick="toggleHistoryPanel(false)"
+            class="w-8 h-8 rounded-full glass-panel hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition border border-white/10 cursor-pointer"
+            title="Fermer le panneau (Échap)"
+          >
+            <i class="fa-solid fa-xmark text-xs"></i>
+          </button>
+        </div>
+
+        <!-- Corps du panneau : Grille grid-cols-2 avec ID historique-grid -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-4">
+          <div class="flex items-center justify-between text-xs text-gray-400 pb-1">
+            <span class="text-[11px] uppercase tracking-wider font-semibold font-montserrat text-gray-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-clock-rotate-left text-purple-400 text-[10px]"></i>
+              Rendus récents
+            </span>
+            <span class="text-[10px] text-gray-500 font-raleway">Cliquez pour prévisualiser</span>
+          </div>
+
+          <!-- Conteneur strict : id="historique-grid" en grid-cols-2 -->
+          <div id="historique-grid" class="grid grid-cols-2 gap-4">
+            <!-- Rempli dynamiquement en JavaScript avec les cartes vidéo conformes -->
+          </div>
+        </div>
+
+        <!-- Pied de page du Slide-over -->
+        <div class="px-6 py-4 border-t border-white/[0.06] bg-black/40 flex items-center justify-between text-xs">
+          <span class="text-gray-500 text-[11px] font-raleway flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-check text-purple-400 text-xs"></i>
+            Stockage cloud persistant
+          </span>
+          <button
+            type="button"
+            onclick="toggleHistoryPanel(false)"
+            class="px-5 py-2 rounded-full glass-pill text-xs font-medium text-gray-300 hover:text-white transition cursor-pointer"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 4. LOGIQUE JAVASCRIPT CONNECTÉE AUX ENGINS BACKEND -->
   <!-- ========================================================================= -->
   <script>
     // --- VARIABLES D'ÉTAT & CONFIGURATION ---
@@ -908,6 +1009,17 @@
         finalVideoPlayer.play().catch((err) => {
           console.warn("Autoplay bloqué par le navigateur :", err);
         });
+
+        // Enregistrement automatique dans l'historique des créations
+        addCreationToHistory({
+          id: 'gen-' + Date.now(),
+          prompt: promptText,
+          model: selectedModelName,
+          ratio: currentAspectRatio,
+          videoUrl: videoUrl,
+          thumb: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=600&auto=format&fit=crop',
+          date: 'À l\'instant'
+        });
       }
     }
 
@@ -955,6 +1067,163 @@
       setUiState('empty');
       promptInput.focus();
     }
+
+    // --- GESTION DU SLIDE-OVER : MES CRÉATIONS ---
+    const DEFAULT_HISTORY = [
+      {
+        id: 'scene-1',
+        prompt: 'Cité néo-Tokyo cyberpunk sous pluie battante et reflets néons holographiques',
+        model: 'Kling 3.0',
+        ratio: '16:9',
+        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        thumb: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?q=80&w=600&auto=format&fit=crop',
+        date: 'Aujourd\'hui'
+      },
+      {
+        id: 'scene-2',
+        prompt: 'Travelling FPV drone traversant des cascades glaciaires en Islande au coucher de soleil',
+        model: 'MiniMax H3',
+        ratio: '16:9',
+        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+        thumb: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=600&auto=format&fit=crop',
+        date: 'Hier'
+      },
+      {
+        id: 'scene-3',
+        prompt: 'Automate steampunk miniature assemblant une horloge céleste avec étincelles dorées',
+        model: 'Genjutsu',
+        ratio: '1:1',
+        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+        thumb: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=600&auto=format&fit=crop',
+        date: 'Il y a 2j'
+      },
+      {
+        id: 'scene-4',
+        prompt: 'Renard polaire aux yeux turquoise courant dans la toundra boréale en 4K 120fps',
+        model: 'Kling 3.0',
+        ratio: '9:16',
+        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4',
+        thumb: 'https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=600&auto=format&fit=crop',
+        date: 'Il y a 3j'
+      }
+    ];
+
+    function getStoredHistory() {
+      try {
+        const stored = localStorage.getItem('studio_creations_history');
+        if (stored) return JSON.parse(stored);
+      } catch (e) {
+        console.warn('Erreur lecture historique local:', e);
+      }
+      return DEFAULT_HISTORY;
+    }
+
+    let creationsHistory = getStoredHistory();
+
+    function renderHistoryGrid() {
+      const grid = document.getElementById('historique-grid');
+      const badge = document.getElementById('historyCountBadge');
+      const titleCount = document.getElementById('historyTitleCount');
+      if (!grid) return;
+
+      if (badge) badge.textContent = creationsHistory.length;
+      if (titleCount) titleCount.textContent = `${creationsHistory.length} scène${creationsHistory.length > 1 ? 's' : ''}`;
+
+      grid.innerHTML = creationsHistory.map((item, index) => `
+        <div
+          onclick="loadHistoryItem(${index})"
+          class="group relative rounded-2xl bg-white/[0.02] border border-white/5 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-950/40 hover:scale-[1.02] transition-all duration-300 overflow-hidden cursor-pointer flex flex-col p-2.5"
+        >
+          <!-- Miniature / Vidéo -->
+          <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black flex items-center justify-center">
+            <img
+              src="${item.thumb || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=600&auto=format&fit=crop'}"
+              alt="Miniature vidéo"
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+            />
+            <!-- Overlay Play au survol -->
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+              <div class="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                <i class="fa-solid fa-play text-[10px] ml-0.5 text-purple-600"></i>
+              </div>
+            </div>
+            <!-- Badge Modèle -->
+            <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-md text-[9px] font-mono text-purple-300 border border-white/10">
+              ${item.model || 'Kling 3.0'}
+            </span>
+            <span class="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-md text-[9px] font-mono text-gray-300">
+              5s
+            </span>
+          </div>
+
+          <!-- Prompt tronqué sur une ligne en bas (Raleway, text-gray-400, text-xs) -->
+          <div class="pt-2 px-1">
+            <p class="font-raleway text-gray-400 text-xs truncate" title="${item.prompt}">
+              ${item.prompt}
+            </p>
+            <div class="flex items-center justify-between text-[10px] text-gray-500 mt-1 font-mono">
+              <span class="text-gray-500">${item.ratio || '16:9'}</span>
+              <span class="text-purple-400/80">${item.date || 'Récemment'}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addCreationToHistory(entry) {
+      creationsHistory.unshift(entry);
+      try {
+        localStorage.setItem('studio_creations_history', JSON.stringify(creationsHistory));
+      } catch (e) {
+        console.warn('Erreur stockage création:', e);
+      }
+      renderHistoryGrid();
+    }
+
+    function toggleHistoryPanel(show) {
+      const slideOver = document.getElementById('historySlideOver');
+      const backdrop = document.getElementById('historyBackdrop');
+      const drawer = document.getElementById('historyDrawer');
+      if (!slideOver || !backdrop || !drawer) return;
+
+      if (show) {
+        slideOver.classList.remove('pointer-events-none');
+        backdrop.classList.remove('opacity-0', 'pointer-events-none');
+        backdrop.classList.add('opacity-100', 'pointer-events-auto');
+        drawer.classList.remove('translate-x-full');
+        drawer.classList.add('translate-x-0');
+        renderHistoryGrid();
+      } else {
+        drawer.classList.remove('translate-x-0');
+        drawer.classList.add('translate-x-full');
+        backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+        backdrop.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => {
+          slideOver.classList.add('pointer-events-none');
+        }, 500);
+      }
+    }
+
+    function loadHistoryItem(index) {
+      const item = creationsHistory[index];
+      if (!item) return;
+
+      promptInput.value = item.prompt;
+      promptInput.dispatchEvent(new Event('input'));
+
+      showGenerationResult(item.prompt, item.videoUrl, 0.55);
+      toggleHistoryPanel(false);
+      showToast("Scène chargée depuis l'historique !");
+    }
+
+    // Fermeture avec la touche Échap
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') toggleHistoryPanel(false);
+    });
+
+    // Initialisation immédiate de la grille d'historique
+    renderHistoryGrid();
   </script>
 
 </body>
