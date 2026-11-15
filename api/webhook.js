@@ -1,102 +1,35 @@
-import { db, admin } from './lib/firebase.js';
+// À appeler lorsque l'utilisateur clique sur le bouton "Mes Créations"
+async function chargerHistorique(userId) {
+    const galerieContainer = document.getElementById('historique-grid');
+    galerieContainer.innerHTML = '<p class="text-gray-400 font-raleway text-sm col-span-2 text-center mt-10">Chargement des créations...</p>';
 
-export default async function handler(req, res) {
-  // 1. Autoriser uniquement les requêtes POST provenant de Higgsfield
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Méthode non autorisée. Utilisez POST.' });
-  }
+    try {
+        // Lecture de Firebase, de la vidéo la plus récente à la plus ancienne
+        const snapshot = await firebase.firestore().collection('users').doc(userId).collection('historique')
+                                 .orderBy('date', 'desc').get();
+        
+        galerieContainer.innerHTML = ''; 
+        
+        if (snapshot.empty) {
+            galerieContainer.innerHTML = '<p class="text-gray-500 font-raleway text-sm col-span-2 text-center mt-10">Votre historique est vide. Lancez votre première génération !</p>';
+            return;
+        }
 
-  try {
-    const payload = req.body;
-
-    if (!payload) {
-      return res.status(400).json({ error: 'Corps de requête (payload) vide.' });
-    }
-
-    // 2. Récupération de l'identifiant du document Firestore
-    // Higgsfield renvoie généralement custom_id ou metadata.generationId ou task_id
-    const generationId =
-      payload.custom_id ||
-      payload.metadata?.generationId ||
-      payload.generationId ||
-      payload.id;
-
-    if (!generationId) {
-      return res.status(400).json({
-        error: 'Identifiant de génération manquant dans le payload du webhook.',
-      });
-    }
-
-    // 3. Récupération de l'URL du fichier MP4
-    // Selon le format de réponse de Higgsfield, l'URL se trouve dans output.video_url, file_url, video_url ou output.url
-    const videoUrl =
-      payload.output?.video_url ||
-      payload.output?.url ||
-      payload.video_url ||
-      payload.file_url ||
-      (Array.isArray(payload.output) && payload.output[0]?.url) ||
-      null;
-
-    // Détermination de l'état (réussite ou échec)
-    const isSuccess = payload.status === 'completed' || payload.status === 'succeeded' || !!videoUrl;
-
-    const generationRef = db.collection('generations').doc(generationId);
-    const generationDoc = await generationRef.get();
-
-    if (!generationDoc.exists) {
-      console.warn(`Document de génération ${generationId} non trouvé dans Firestore.`);
-      return res.status(404).json({ error: `Génération ${generationId} introuvable.` });
-    }
-
-    // 4. Mise à jour du document Firestore
-    if (isSuccess && videoUrl) {
-      await generationRef.update({
-        status: 'completed',
-        videoUrl: videoUrl,
-        completedAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        rawWebhookPayload: payload,
-      });
-
-      return res.status(200).json({
-        received: true,
-        generationId: generationId,
-        status: 'completed',
-        videoUrl: videoUrl,
-      });
-    } else {
-      // Cas où la génération a échoué côté Higgsfield
-      const failureReason = payload.error || payload.message || 'Échec du traitement vidéo';
-
-      await generationRef.update({
-        status: 'failed',
-        error: failureReason,
-        failedAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        rawWebhookPayload: payload,
-      });
-
-      // Remboursement optionnel : si la vidéo a échoué, on peut recréditer l'utilisateur
-      const generationData = generationDoc.data();
-      if (generationData?.userId && generationData?.cost) {
-        const userRef = db.collection('users').doc(generationData.userId);
-        await userRef.update({
-          balance: admin.firestore.FieldValue.increment(generationData.cost),
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            // Création de la carte vidéo au format Glassmorphism
+            const element = `
+                <div class="relative group rounded-2xl overflow-hidden border border-white/5 hover:border-purple-500/50 hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] transition-all cursor-pointer">
+                    <video src="${data.video_url}" class="w-full h-40 object-cover" loop muted onmouseover="this.play()" onmouseout="this.pause()"></video>
+                    <div class="absolute bottom-0 w-full bg-gradient-to-t from-black via-black/80 to-transparent pt-6 pb-2 px-3">
+                        <p class="text-xs text-gray-300 truncate font-raleway">${data.prompt}</p>
+                    </div>
+                </div>
+            `;
+            galerieContainer.insertAdjacentHTML('beforeend', element);
         });
-      }
-
-      return res.status(200).json({
-        received: true,
-        generationId: generationId,
-        status: 'failed',
-        reason: failureReason,
-      });
+    } catch (error) {
+        console.error("Erreur lors de la lecture de l'historique :", error);
+        galerieContainer.innerHTML = '<p class="text-red-400 text-sm">Erreur de connexion.</p>';
     }
-  } catch (error) {
-    console.error('Erreur dans /api/webhook:', error);
-    return res.status(500).json({
-      error: 'Erreur interne lors du traitement du webhook.',
-      details: error.message,
-    });
-  }
 }
